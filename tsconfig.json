@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "incremental": true,
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*", "public/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "src/app/dashboard/favourites/page.jsx",
+    "src/app/dashboard/LovedMatches/page.jsx",
+    "src/app/dashboard/watch-later/page.jsx",
+    "src/components/dashboard/dashboard-header.jsx",
+    "src/components/dashboard/featured-match.jsx",
+    "src/components/dashboard/filter-tabs.jsx",
+    "src/components/dashboard/highlight-leagues.jsx",
+    "src/components/dashboard/latest-matches.jsx",
+    "src/components/dashboard/pagination.jsx",
+    "src/components/dashboard/AppSidebar.jsx",
+    "src/components/dashboard/video-grid.jsx"
+  ],
+  "exclude": ["node_modules"]
+}
