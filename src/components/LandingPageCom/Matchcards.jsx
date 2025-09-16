@@ -23,6 +23,28 @@ function Matchcards({ activeTab, filter }) {
     videoType: "highlight",
   });
 
+  const initialPage = Number(searchParams.get("page")) || 1;
+  const [page, setPage] = useState(initialPage);
+  const pageSize = 16;
+
+  // 🔹 Use the upgraded hook (handles /videos + /search)
+  const {
+    videos,
+    metadata,
+    loading,
+    error: fetchError,
+  } = useVideos(activeTab, page, pageSize, filter);
+
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [page, router, searchParams]);
+
   const handleVideoClick = (video) => {
     console.log("Selecting video:", video);
     if (user) {
@@ -31,34 +53,6 @@ function Matchcards({ activeTab, filter }) {
       setSubscriptionModal({ isOpen: true, videoType: video.category });
     }
   };
-
-  // const handleVideoClick = (video) => {
-  //   console.log("Selecting video:", video);
-  //   if (user) {
-  //     setSelectedVideo(video, pathname);
-  //     router.push(`/video/${video.id}`);
-  //   } else {
-  //     setSubscriptionModal({ isOpen: true, videoType: video.category });
-  //   }
-  // };
-
-  const initialPage = Number(searchParams.get("page")) || 1;
-  const [page, setPage] = useState(initialPage);
-
-  const pageSize = 16;
-
-  const { videos, metadata, loading } = useVideos(
-    activeTab,
-    page,
-    pageSize,
-    filter
-  );
-
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page);
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }, [page, router, searchParams]);
 
   const getPageTitle = () => {
     if (activeTab === "Highlights") return "Highlights";
@@ -96,9 +90,9 @@ function Matchcards({ activeTab, filter }) {
         {loading && <p className="text-center text-gray-500">Loading...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
 
-        {!loading && videos.length === 0 && activeTab === "All Goals" && (
+        {!loading && videos.length === 0 && (
           <p className="text-center text-gray-500 text-lg font-semibold">
-            Coming Soon
+            No results found
           </p>
         )}
 

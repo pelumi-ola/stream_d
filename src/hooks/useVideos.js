@@ -23,35 +23,50 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
       setError(null);
 
       try {
-        const categoryName = getCategoryName();
         let endpoint = "";
         let params = { page, pageSize };
 
-        if (categoryName) {
+        // 🔹 Case 1: Advanced Search mode (object filter)
+        if (filter && typeof filter === "object") {
+          endpoint = "/search";
+          params = {
+            page,
+            pageSize,
+            query: filter.query ?? "",
+            q: filter.q ?? "",
+            league: filter.league ?? [],
+            team: filter.team ?? [],
+            category: filter.category ?? [],
+            location: filter.location ?? [],
+            limit: pageSize,
+            offset: (page - 1) * pageSize,
+          };
+        } else {
+          const categoryName = getCategoryName();
           const isDateFilter =
             filter &&
+            typeof filter === "string" &&
             ["today", "yesterday", "tomorrow"].includes(filter.toLowerCase());
-          // Category tabs
-          endpoint = isDateFilter
-            ? `/videos/category/${categoryName}/date`
-            : `/videos/category/${categoryName}`;
-          if (isDateFilter) {
-            params.day = filter.toLowerCase();
-          }
-        } else {
-          // Home tab
-          endpoint = "/videos";
-          if (
-            filter &&
-            ["today", "yesterday", "tomorrow"].includes(filter.toLowerCase())
-          ) {
-            params.day = filter.toLowerCase();
+
+          if (categoryName) {
+            endpoint = isDateFilter
+              ? `/videos/category/${categoryName}/date`
+              : `/videos/category/${categoryName}`;
+
+            if (isDateFilter) {
+              params.day = filter.toLowerCase();
+            }
+          } else {
+            endpoint = "/videos";
+            if (isDateFilter) {
+              params.day = filter.toLowerCase();
+            }
           }
         }
 
         const res = await fetchFromApi({ endpoint, params });
 
-        if (res?.data) {
+        if (res?.data?.length) {
           setVideos(res.data);
           setMetadata(res.metadata || null);
         } else {
@@ -61,6 +76,8 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
       } catch (err) {
         console.error("useVideos error:", err);
         setError("Failed to fetch videos");
+        setVideos([]);
+        setMetadata(null);
       } finally {
         setLoading(false);
       }
@@ -68,7 +85,6 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
 
     loadVideos();
   }, [activeTab, page, pageSize, filter]);
-
   return {
     videos,
     loading,

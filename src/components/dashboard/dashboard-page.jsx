@@ -59,7 +59,7 @@ const cardVariants = {
 };
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, timeLeft } = useAuth();
   const router = useRouter();
   const { selectedVideo, setSelectedVideo } = useVideoContext();
   const [selectedCountry, setSelectedCountry] = useState();
@@ -69,40 +69,21 @@ export default function DashboardPage() {
 
   console.log("User in Dashboard:", user);
 
-  const [timeLeft, setTimeLeft] = useState(user?.remaining_seconds || 0);
   const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
-    if (!user?.remaining_seconds) return;
-
-    setTimeLeft(user.remaining_seconds);
-
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          logout();
-          return 0;
-        }
-        // Show modal at 60 seconds remaining
-        if (prev === 61) {
-          setShowWarning(true);
-        }
-
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [user?.remaining_seconds, logout]);
+    if (timeLeft === 60) {
+      setShowWarning(true);
+    }
+  }, [timeLeft]);
 
   const formatTime = (seconds) => {
+    if (seconds == null) return "--";
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     return `${h}h ${m}m ${s}s`;
   };
-
   // 🔹 Fetch all videos (for leagues + countries)
   const { videos: allVideos, loading: loadingAll } = useAllVideos();
   const [recentPage, setRecentPage] = useState(1);
@@ -603,17 +584,6 @@ export default function DashboardPage() {
                     {formatTime(timeLeft)}
                   </span>
                 </p>
-
-                {/* <p className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">
-                    ⏳ Remaining:
-                  </span>
-                  <span className="text-gray-900 dark:text-white">
-                    {`${Math.floor(
-                      user.remaining_seconds / 3600
-                    )}h ${Math.floor((user.remaining_seconds % 3600) / 60)}m`}
-                  </span>
-                </p> */}
               </div>
 
               <div className="mt-6 flex justify-end">

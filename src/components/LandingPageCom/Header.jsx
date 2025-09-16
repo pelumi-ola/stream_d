@@ -58,16 +58,16 @@ function Header({ activeTab, setActiveTab }) {
           >
             {navItems.map((item) => (
               <motion.div key={item} variants={linkVariants}>
-                <Button
+                <nav
                   onClick={() => setActiveTab(item)}
                   className={`relative transition-colors ${
                     activeTab === item
-                      ? "text-[#FFCB03] after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-white after:rounded-full"
-                      : "text-white hover:text-purple-200 transition-colors"
+                      ? "text-[#FFCB03] cursor-pointer after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-white after:rounded-full"
+                      : "text-white hover:text-purple-200 transition-colors cursor-pointer"
                   }`}
                 >
                   {item}
-                </Button>
+                </nav>
               </motion.div>
             ))}
           </motion.nav>
@@ -150,16 +150,16 @@ function Header({ activeTab, setActiveTab }) {
             <nav className="flex flex-col space-y-6">
               {navItems.map((item) => (
                 <motion.div key={item} variants={linkVariants}>
-                  <Button
+                  <nav
                     onClick={() => setActiveTab(item)}
                     className={`relative transition-colors ${
                       activeTab === item
-                        ? "text-[#FFCB03] after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-white after:rounded-full"
-                        : "text-white hover:text-purple-200 transition-colors"
+                        ? "text-[#FFCB03] cursor-pointer after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-white after:rounded-full"
+                        : "text-white cursor-pointer hover:text-purple-200 transition-colors"
                     }`}
                   >
                     {item}
-                  </Button>
+                  </nav>
                 </motion.div>
               ))}
             </nav>

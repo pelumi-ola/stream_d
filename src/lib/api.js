@@ -36,6 +36,46 @@ const PaginatedResponseSchema = z.object({
   }),
 });
 
+const SearchResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.object({
+    query: z.string().optional(),
+    filters: z.object({
+      q: z.string().optional(),
+      league: z.array(z.any()),
+      team: z.array(z.any()),
+      category: z.array(z.any()),
+      location: z.array(z.any()),
+      limit: z.number(),
+      offset: z.number(),
+    }),
+    results: z.array(VideoSchema),
+    pagination: z.object({
+      page: z.number(),
+      limit: z.number(),
+      total: z.number(),
+    }),
+  }),
+});
+
+// --- Filter Options ---
+const FilterOptionsResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.object({
+    type: z.string(),
+    query: z.string(),
+    options: z.array(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+      })
+    ),
+    total: z.number(),
+  }),
+});
+
 // Reusable fetch function
 export async function fetchFromApi({
   endpoint,
@@ -44,6 +84,53 @@ export async function fetchFromApi({
 }) {
   try {
     const res = await api.get(endpoint, { params });
+
+    // ✅ Handle /search
+    if (endpoint === "/search") {
+      const parsed = SearchResponseSchema.parse(res.data);
+      return {
+        data: parsed.data.results,
+        metadata: {
+          total_items: parsed.data.pagination.total,
+          page: parsed.data.pagination.page,
+          pageSize: parsed.data.pagination.limit,
+          total_pages: Math.ceil(
+            parsed.data.pagination.total / parsed.data.pagination.limit
+          ),
+          has_previous: parsed.data.pagination.page > 1,
+          has_next:
+            parsed.data.pagination.page <
+            Math.ceil(
+              parsed.data.pagination.total / parsed.data.pagination.limit
+            ),
+          previous_page:
+            parsed.data.pagination.page > 1
+              ? parsed.data.pagination.page - 1
+              : null,
+          next_page:
+            parsed.data.pagination.page <
+            Math.ceil(
+              parsed.data.pagination.total / parsed.data.pagination.limit
+            )
+              ? parsed.data.pagination.page + 1
+              : null,
+        },
+      };
+    }
+
+    // ✅ Handle /filter-options
+    if (endpoint === "/filter-options") {
+      const parsed = FilterOptionsResponseSchema.parse(res.data);
+
+      // normalize: return array of options
+      return {
+        available: parsed.data.total > 0,
+        options: parsed.data.options,
+        type: parsed.data.type,
+      };
+    }
+
+    // ✅ Normal case (videos, categories)
     return schema.parse(res.data);
   } catch (err) {
     console.error(`API Fetch Error [${endpoint}]:`, err);
@@ -53,25 +140,21 @@ export async function fetchFromApi({
 
 // Login response schema
 
-const BaseDataSchema = z.object({
-  status: z.string(), // ✅ accept ANY status from backend
-  msisdn: z.string(),
-  is_first_time: z.boolean(),
-  remaining_seconds: z.number(),
-  carrier: z.string().nullable().optional(),
-  subscription_link: z.string().url().nullable().optional(),
-  subscriber_id: z.number().optional(),
-  session_token: z.string().nullable().optional(),
-  session_expires_at: z.string().datetime().nullable().optional(),
-  start_time: z.string().datetime().nullable().optional(),
-  end_time: z.string().datetime().nullable().optional(),
-});
-
 export const LoginResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
-  data: BaseDataSchema.nullable(), // ✅ backend decides status
-  server_time: z.string().datetime().optional(),
+  data: z.object({
+    status: z.string(),
+    msisdn: z.string(),
+    subscriber_id: z.number(),
+    start_time: z.string().nullable().optional(),
+    end_time: z.string().nullable().optional(),
+    session_token: z.string(),
+    session_expires_at: z.string().nullable().optional(),
+    is_first_time: z.boolean().optional(),
+    remaining_seconds: z.number().optional(),
+  }),
+  server_time: z.string().nullable().optional(),
 });
 
 export async function loginApi(phoneNumber) {

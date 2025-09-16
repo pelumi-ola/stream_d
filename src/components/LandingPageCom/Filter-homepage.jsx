@@ -6,6 +6,7 @@ import { Search, Filter, ChevronDown, ChevronRight } from "@/assets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
+import { fetchFromApi } from "@/lib/api";
 
 function FilterHomepage({ onFilterChange }) {
   const [activeTab, setActiveTab] = useState("home");
@@ -13,12 +14,173 @@ function FilterHomepage({ onFilterChange }) {
   const [openSections, setOpenSections] = useState({});
   const [date, setDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
+  const [mainSuggestions, setMainSuggestions] = useState([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
+  // 🔹 State for search + filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({
+    league: [],
+    team: [],
+    match_status: [],
+    category: [],
+    date: [],
+  });
+
+  // 🔹 Autosuggestions
+  const [suggestions, setSuggestions] = useState({
+    league: [],
+    team: [],
+  });
 
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  // 🔹 Single-select checkboxes
+  const handleCheckboxChange = (section, value) => {
+    setSelectedFilters((prev) => {
+      const exists = prev[section.toLowerCase()]?.includes(value);
+      return {
+        ...prev,
+        [section.toLowerCase()]: exists ? [] : [value], // single-select only
+      };
+    });
+  };
+
+  // State
+  const [filterInputs, setFilterInputs] = useState({
+    league: "",
+    team: "",
+  });
+
+  // Update input value + fetch suggestions
+  const handleInputChange = async (type, value) => {
+    setFilterInputs((prev) => ({ ...prev, [type.toLowerCase()]: value }));
+
+    if (!value.trim()) {
+      setSuggestions((prev) => ({ ...prev, [type.toLowerCase()]: [] }));
+      return;
+    }
+
+    try {
+      const res = await fetchFromApi({
+        endpoint: "/filter-options",
+        params: { type: type.toLowerCase(), query: value },
+      });
+
+      if (res?.options) {
+        let opts = res.options.map((opt) => opt.name);
+
+        // Prioritize exact and "starts with" matches first
+        const query = value.toLowerCase();
+        opts.sort((a, b) => {
+          const aLower = a.toLowerCase();
+          const bLower = b.toLowerCase();
+          if (aLower === query) return -1; // exact match goes top
+          if (bLower === query) return 1;
+          if (aLower.startsWith(query) && !bLower.startsWith(query)) return -1;
+          if (bLower.startsWith(query) && !aLower.startsWith(query)) return 1;
+          return aLower.localeCompare(bLower); // fallback alphabetical
+        });
+
+        setSuggestions((prev) => ({
+          ...prev,
+          [type.toLowerCase()]: opts,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch suggestions:", err);
+    }
+  };
+
+  // Confirm selection (from suggestion OR custom input)
+  const handleCustomOption = async (type, value) => {
+    if (!value.trim()) return;
+
+    try {
+      const res = await fetchFromApi({
+        endpoint: "/filter-options",
+        params: { type: type.toLowerCase(), value },
+      });
+
+      // Always allow custom or valid values
+      if (res?.available || !res?.available) {
+        setSelectedFilters((prev) => {
+          const updated = { ...prev, [type.toLowerCase()]: [value] };
+
+          // 🔹 Auto-check if value is in the hardcoded options
+          const section = filters.find(
+            (f) => f.title.toLowerCase() === type.toLowerCase()
+          );
+          if (section && section.options.includes(value)) {
+            // keep it in sync with checkbox state
+            updated[type.toLowerCase()] = [value];
+          }
+
+          return updated;
+        });
+
+        // Reset suggestions + input
+        setSuggestions((prev) => ({ ...prev, [type.toLowerCase()]: [] }));
+        setFilterInputs((prev) => ({ ...prev, [type.toLowerCase()]: "" }));
+      }
+    } catch (err) {
+      console.error("Filter option check failed:", err);
+    }
+  };
+
+  // Render highlighted suggestion
+  const renderHighlighted = (text, query) => {
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+
+    return (
+      <>
+        {text.slice(0, idx)}
+        <span className="font-semibold text-purple-600">
+          {text.slice(idx, idx + query.length)}
+        </span>
+        {text.slice(idx + query.length)}
+      </>
+    );
+  };
+
+  // 🔹 Execute search (either input or button)
+  const executeSearch = async () => {
+    const filtersToSend = {
+      query: searchQuery || undefined,
+      ...selectedFilters,
+      date: date ? date.toISOString().split("T")[0] : undefined,
+    };
+
+    // Wait for results from parent
+    const result = await onFilterChange(filtersToSend);
+
+    if (!result || result.length === 0) {
+      // Show "No results found" in both input + filter box
+      setSuggestions({
+        league: ["No results found"],
+        team: ["No results found"],
+      });
+    }
+
+    // Reset filters & inputs
+    setSearchQuery("");
+    setSelectedFilters({
+      league: [],
+      team: [],
+      match_status: [],
+      category: [],
+      date: [],
+    });
+    setFilterInputs({ league: "", team: "" });
+    setDate(new Date());
+    setShowFilter(false);
+    setMainSuggestions([]);
   };
 
   const filters = [
@@ -36,15 +198,17 @@ function FilterHomepage({ onFilterChange }) {
     {
       title: "Team",
       options: [
-        "Manchester United Vs Chelsea",
-        "Real Madrid Vs Serie A",
-        "Placeholder Vs Placeholder",
+        "Manchester United",
+        "Arsenal",
+        "Chelsea",
+        "Valencia Spain",
+        "North Texas",
       ],
       search: true,
     },
     {
       title: "Match Status",
-      options: ["Today", "Yesterday", "Past Match"],
+      options: ["Upcoming", "Finished", "Live"],
     },
     {
       title: "Category",
@@ -56,6 +220,86 @@ function FilterHomepage({ onFilterChange }) {
     },
   ];
 
+  const handleMainSearchChange = async (value) => {
+    setSearchQuery(value);
+
+    if (!value.trim()) {
+      setMainSuggestions([]);
+      return;
+    }
+
+    try {
+      // fetch league + team in parallel
+      const [leagueRes, teamRes] = await Promise.all([
+        fetchFromApi({
+          endpoint: "/filter-options",
+          params: { type: "league", query: value },
+        }),
+        fetchFromApi({
+          endpoint: "/filter-options",
+          params: { type: "team", query: value },
+        }),
+      ]);
+
+      let opts = [
+        ...(leagueRes?.options?.map((opt) => opt.name) || []),
+        ...(teamRes?.options?.map((opt) => opt.name) || []),
+      ];
+
+      if (opts.length === 0) {
+        setMainSuggestions(["No results found"]);
+        return;
+      }
+
+      // sorting: exact > startsWith > alphabetic
+      const query = value.toLowerCase();
+      opts.sort((a, b) => {
+        const aLower = a.toLowerCase();
+        const bLower = b.toLowerCase();
+        if (aLower === query) return -1;
+        if (bLower === query) return 1;
+        if (aLower.startsWith(query) && !bLower.startsWith(query)) return -1;
+        if (bLower.startsWith(query) && !aLower.startsWith(query)) return 1;
+        return aLower.localeCompare(bLower);
+      });
+
+      setMainSuggestions(opts);
+      setHighlightedIndex(-1);
+    } catch (err) {
+      console.error("Main search suggestions failed:", err);
+      setMainSuggestions(["No results found"]);
+    }
+  };
+
+  const handleMainKeyDown = (e) => {
+    if (mainSuggestions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev < mainSuggestions.length - 1 ? prev + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev > 0 ? prev - 1 : mainSuggestions.length - 1
+      );
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (highlightedIndex >= 0) {
+        const selected = mainSuggestions[highlightedIndex];
+        if (selected !== "No results found") {
+          setSearchQuery(selected);
+          setMainSuggestions([]);
+          setHighlightedIndex(-1);
+          executeSearch();
+        }
+      } else {
+        executeSearch();
+      }
+    }
+  };
+
   return (
     <motion.section
       initial={{ opacity: 0, y: -20 }}
@@ -64,7 +308,7 @@ function FilterHomepage({ onFilterChange }) {
       className="relative z-50 bg-white/10 dark:bg-gray-900/50 drop-shadow-lg border-y border-white/20 dark:border-gray-700/30"
     >
       <div className="flex md:flex-row flex-col space-y-5 items-center justify-between lg:max-w-7xl lg:mx-auto px-6 lg:px-8 py-7">
-        <div className="flex items-center space-x-2 toggle-items">
+        <div className="flex items-center space-x-2 toggle-items toggle-filter">
           {["Yesterday", "Today", "Tomorrow", "View All"].map((tab) => (
             <Button
               key={tab}
@@ -91,12 +335,44 @@ function FilterHomepage({ onFilterChange }) {
         </div>
 
         <div className="flex items-center mb-3">
-          <div className="relative">
+          <div className="relative search-input">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder="Chelsea vs Man-U"
-              className="pl-10 bg-ring rounded-full dark:bg-ring border-primary dark:border-primary focus:border-primary dark:text-white text-black placeholder:text-gray-500"
+              value={searchQuery}
+              onChange={(e) => handleMainSearchChange(e.target.value)}
+              onKeyDown={(e) => handleMainKeyDown(e)}
+              placeholder="Search by team, league, or country"
+              className="pl-10 bg-ring rounded-full dark:bg-ring dark:text-black border-primary dark:border-primary focus:border-primary text-black placeholder:text-gray-500"
             />
+
+            {/* Suggestion dropdown for main search */}
+            {mainSuggestions.length > 0 && (
+              <div className="absolute left-0 mt-1 bg-white dark:bg-gray-800 border rounded-md shadow-md max-h-40 overflow-y-auto z-50 w-full">
+                {mainSuggestions.map((sug, index) =>
+                  sug === "No results found" ? (
+                    <div key={sug} className="p-2 text-gray-500 text-sm italic">
+                      {sug}
+                    </div>
+                  ) : (
+                    <div
+                      key={sug}
+                      className={`p-2 cursor-pointer text-sm ${
+                        index === highlightedIndex
+                          ? "bg-purple-100 dark:bg-gray-700"
+                          : "hover:bg-gray-200 dark:hover:bg-gray-600"
+                      }`}
+                      onClick={() => {
+                        setSearchQuery(sug);
+                        setMainSuggestions([]);
+                        executeSearch();
+                      }}
+                    >
+                      {renderHighlighted(sug, searchQuery)}
+                    </div>
+                  )
+                )}
+              </div>
+            )}
           </div>
           <div className="relative">
             <Button
@@ -146,14 +422,16 @@ function FilterHomepage({ onFilterChange }) {
                                 readOnly
                                 value={
                                   date
-                                    ? date.toLocaleDateString()
+                                    ? date
+                                        .toISOString()
+                                        .split("T")[0]
+                                        .replace(/-/g, "/") // YYYY/MM/DD
                                     : "Pick a date"
                                 }
                                 onClick={() => setShowCalendar(true)}
                                 className="cursor-pointer"
                               />
                             )}
-
                             {showCalendar && (
                               <Calendar
                                 mode="single"
@@ -161,7 +439,6 @@ function FilterHomepage({ onFilterChange }) {
                                 onSelect={(d) => {
                                   setDate(d);
                                   setShowCalendar(false);
-                                  onFilterChange({ type: "date", value: d });
                                 }}
                                 className="rounded-md border"
                               />
@@ -169,7 +446,15 @@ function FilterHomepage({ onFilterChange }) {
                           </>
                         ) : (
                           <>
-                            {section.options.map((opt) => (
+                            {/* Combined options: hardcoded + custom */}
+                            {[
+                              ...(section.options || []),
+                              ...(selectedFilters[
+                                section.title.toLowerCase()
+                              ]?.filter(
+                                (val) => !section.options.includes(val)
+                              ) || []),
+                            ].map((opt) => (
                               <label
                                 key={opt}
                                 className="flex items-center space-x-2 text-sm cursor-pointer"
@@ -177,27 +462,111 @@ function FilterHomepage({ onFilterChange }) {
                                 <input
                                   type="checkbox"
                                   className="accent-purple-600 w-4 h-4"
+                                  checked={
+                                    selectedFilters[
+                                      section.title.toLowerCase()
+                                    ]?.includes(opt) || false
+                                  }
+                                  onChange={() =>
+                                    handleCheckboxChange(section.title, opt)
+                                  }
                                 />
                                 <span>{opt}</span>
                               </label>
                             ))}
-                            {section.search && (
-                              <div className="flex items-center space-x-2 mt-2">
+
+                            {/* Searchable Input + Suggestions at the bottom */}
+                            <div className="relative mt-2">
+                              <div className="flex items-center space-x-2">
                                 <Input
-                                  placeholder="input favourite"
+                                  placeholder={`Add ${section.title}`}
                                   className="text-sm"
+                                  value={
+                                    filterInputs[section.title.toLowerCase()] ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      section.title,
+                                      e.target.value
+                                    )
+                                  }
+                                  onKeyDown={(e) =>
+                                    e.key === "Enter" &&
+                                    handleCustomOption(
+                                      section.title,
+                                      filterInputs[section.title.toLowerCase()]
+                                    )
+                                  }
                                 />
-                                <Button className="bg-purple-600 text-white px-2 py-1">
+                                <Button
+                                  className="bg-purple-600 text-white px-2 py-1"
+                                  onClick={() =>
+                                    handleCustomOption(
+                                      section.title,
+                                      filterInputs[section.title.toLowerCase()]
+                                    )
+                                  }
+                                >
                                   <Search className="w-4 h-4" />
                                 </Button>
                               </div>
-                            )}
+
+                              {/* Suggestion Dropdown */}
+                              {filterInputs[
+                                section.title.toLowerCase()
+                              ]?.trim() &&
+                                suggestions[section.title.toLowerCase()]
+                                  ?.length > 0 && (
+                                  <div className="absolute bg-white dark:bg-gray-800 border rounded-md mt-1 shadow-md max-h-40 overflow-y-auto z-50 w-full">
+                                    {suggestions[
+                                      section.title.toLowerCase()
+                                    ].map((sug) =>
+                                      sug === "No results found" ? (
+                                        <div
+                                          key={sug}
+                                          className="p-2 text-gray-500 text-sm italic"
+                                        >
+                                          {sug}
+                                        </div>
+                                      ) : (
+                                        <div
+                                          key={sug}
+                                          className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer text-sm"
+                                          onClick={() =>
+                                            handleCustomOption(
+                                              section.title,
+                                              sug
+                                            )
+                                          }
+                                        >
+                                          {renderHighlighted(
+                                            sug,
+                                            filterInputs[
+                                              section.title.toLowerCase()
+                                            ] || ""
+                                          )}
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                )}
+                            </div>
                           </>
                         )}
                       </div>
                     )}
                   </div>
                 ))}
+
+                <div className="pt-3 mt-3 flex justify-end">
+                  <Button
+                    className="bg-primary text-white px-4 py-2 rounded-lg"
+                    onClick={executeSearch}
+                  >
+                    <Search className="w-4 h-4 mr-2" /> Search
+                  </Button>
+                </div>
               </motion.div>
             )}
           </div>
