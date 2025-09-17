@@ -10,6 +10,9 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Keep track if we're in search mode
+  const [isSearchMode, setIsSearchMode] = useState(false);
+
   const getCategoryName = () => {
     if (activeTab === "Highlights") return "Highlights";
     if (activeTab === "Live Stream") return "Live Stream";
@@ -26,22 +29,19 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
         let endpoint = "";
         let params = { page, pageSize };
 
-        // 🔹 Case 1: Advanced Search mode (object filter)
+        // 🔹 Case 1: Search mode (filter object)
         if (filter && typeof filter === "object") {
+          setIsSearchMode(true);
           endpoint = "/search";
+
+          // Send all provided filters, including main query
           params = {
-            page,
-            pageSize,
-            query: filter.query ?? "",
-            q: filter.q ?? "",
-            league: filter.league ?? [],
-            team: filter.team ?? [],
-            category: filter.category ?? [],
-            location: filter.location ?? [],
             limit: pageSize,
             offset: (page - 1) * pageSize,
+            ...filter, // q, league, team, category
           };
         } else {
+          setIsSearchMode(false);
           const categoryName = getCategoryName();
           const isDateFilter =
             filter &&
@@ -58,9 +58,7 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
             }
           } else {
             endpoint = "/videos";
-            if (isDateFilter) {
-              params.day = filter.toLowerCase();
-            }
+            if (isDateFilter) params.day = filter.toLowerCase();
           }
         }
 
@@ -85,12 +83,14 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
 
     loadVideos();
   }, [activeTab, page, pageSize, filter]);
+
   return {
     videos,
     loading,
     error,
     metadata,
     totalPages: metadata?.total_pages ?? 1,
+    isSearchMode,
   };
 }
 

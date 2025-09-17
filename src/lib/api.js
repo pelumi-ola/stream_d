@@ -146,13 +146,15 @@ export const LoginResponseSchema = z.object({
   data: z.object({
     status: z.string(),
     msisdn: z.string(),
-    subscriber_id: z.number(),
+    subscriber_id: z.number().optional().nullable(),
     start_time: z.string().nullable().optional(),
     end_time: z.string().nullable().optional(),
-    session_token: z.string(),
+    session_token: z.string().nullable().optional(),
     session_expires_at: z.string().nullable().optional(),
     is_first_time: z.boolean().optional(),
     remaining_seconds: z.number().optional(),
+    carrier: z.string().optional(),
+    subscription_link: z.string().optional(),
   }),
   server_time: z.string().nullable().optional(),
 });

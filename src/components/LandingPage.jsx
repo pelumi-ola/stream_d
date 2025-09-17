@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import HeroSection from "@/components/LandingPageCom/HeroSlider";
 import FilterHomepage from "@/components/LandingPageCom/Filter-homepage";
 import Matchcards from "@/components/LandingPageCom/Matchcards";
@@ -12,6 +12,11 @@ import FadeInSection from "@/components/ui/FadeInSection";
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState("Home");
   const [activeFilter, setActiveFilter] = useState(null);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilter, activeTab]);
 
   return (
     <div className="min-h-screen dark:from-gray-900 dark:via-gray-800 dark:to-black">
@@ -22,13 +27,17 @@ export default function LandingPage() {
         </FadeInSection>
         <FadeInSection>
           <FilterHomepage
-            className="absolute"
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
           />
         </FadeInSection>
         <FadeInSection>
-          <Matchcards activeTab={activeTab} filter={activeFilter} />
+          <Matchcards
+            activeTab={activeTab}
+            filter={activeFilter}
+            page={page}
+            setPage={setPage}
+          />
         </FadeInSection>
         <FadeInSection>
           <StreamAndHighlights />

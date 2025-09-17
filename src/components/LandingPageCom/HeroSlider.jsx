@@ -103,10 +103,10 @@ export default function Hero() {
               src={slides[current].image}
               alt={slides[current].text}
               fill
-              className="object-cover"
+              className="object-cover brightness-110"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#6f30a0]/60 via-[#6f30a0]/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#6f30a0]/40 via-[#6f30a0]/20 to-transparent" />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -142,13 +142,6 @@ export default function Hero() {
         >
           {slides[current].buttonText}
         </Button>
-
-        {/* <Button
-          onClick={() => handleButtonClick(slides[current])}
-          className="bg-white hover:bg-hover-button text-primary font-semibold px-10 py-7 text-lg rounded-2xl shadow-lg"
-        >
-          {slides[current].buttonText}
-        </Button> */}
       </div>
 
       {/* Arrows */}

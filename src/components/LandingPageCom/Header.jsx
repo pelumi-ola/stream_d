@@ -59,7 +59,18 @@ function Header({ activeTab, setActiveTab }) {
             {navItems.map((item) => (
               <motion.div key={item} variants={linkVariants}>
                 <nav
-                  onClick={() => setActiveTab(item)}
+                  onClick={() => {
+                    setActiveTab(item);
+
+                    // Scroll to matchcards section
+                    const section = document.getElementById("matchcards");
+                    if (section) {
+                      section.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                      });
+                    }
+                  }}
                   className={`relative transition-colors ${
                     activeTab === item
                       ? "text-[#FFCB03] cursor-pointer after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-white after:rounded-full"
@@ -151,7 +162,18 @@ function Header({ activeTab, setActiveTab }) {
               {navItems.map((item) => (
                 <motion.div key={item} variants={linkVariants}>
                   <nav
-                    onClick={() => setActiveTab(item)}
+                    onClick={() => {
+                      setActiveTab(item);
+
+                      // Scroll to matchcards section
+                      const section = document.getElementById("matchcards");
+                      if (section) {
+                        section.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }
+                    }}
                     className={`relative transition-colors ${
                       activeTab === item
                         ? "text-[#FFCB03] cursor-pointer after:absolute after:left-0 after:bottom-[-4px] after:h-[2px] after:w-full after:bg-white after:rounded-full"

@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useVideoContext } from "@/context/VideoContext";
 import { usePathname } from "next/navigation";
 
-function Matchcards({ activeTab, filter }) {
+function Matchcards({ activeTab, filter, page, setPage }) {
   const [error, setError] = useState();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -23,8 +23,8 @@ function Matchcards({ activeTab, filter }) {
     videoType: "highlight",
   });
 
-  const initialPage = Number(searchParams.get("page")) || 1;
-  const [page, setPage] = useState(initialPage);
+  // const initialPage = Number(searchParams.get("page")) || 1;
+  // const [page, setPage] = useState(initialPage);
   const pageSize = 16;
 
   // 🔹 Use the upgraded hook (handles /videos + /search)
@@ -33,6 +33,7 @@ function Matchcards({ activeTab, filter }) {
     metadata,
     loading,
     error: fetchError,
+    isSearchMode,
   } = useVideos(activeTab, page, pageSize, filter);
 
   useEffect(() => {
@@ -65,7 +66,7 @@ function Matchcards({ activeTab, filter }) {
 
   return (
     <>
-      <section id="highlights" className="">
+      <section id="matchcards" className="">
         {pageTitle && (
           <div className="text-head max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
