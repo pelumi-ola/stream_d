@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetchFromApi } from "@/lib/api";
 
-function FilterHomepage({ onFilterChange }) {
+function FilterHomepage({ onFilterChange, videos = [] }) {
   const [activeTab, setActiveTab] = useState("home");
   const [showFilter, setShowFilter] = useState(false);
   const [openSections, setOpenSections] = useState({});
@@ -109,6 +109,8 @@ function FilterHomepage({ onFilterChange }) {
       ...(selectedFilters.category && { category: selectedFilters.category }),
     };
 
+    console.log("[FilterHomepage] Search payload sending to /search:", payload);
+
     await onFilterChange(Object.keys(payload).length > 0 ? payload : null);
     setShowFilter(false);
   };
@@ -120,31 +122,28 @@ function FilterHomepage({ onFilterChange }) {
       setMainSuggestions([]);
       return;
     }
+    // 🔹 Extract unique values from videos (league, country, category, title)
+    const uniqueValues = new Set();
+    videos.forEach((v) => {
+      if (v.league) uniqueValues.add(v.league);
+      if (v.country) uniqueValues.add(v.country);
+      if (v.category) uniqueValues.add(v.category);
+      if (v.title) uniqueValues.add(v.title);
+    });
 
-    try {
-      const [leagueRes, teamRes] = await Promise.all([
-        fetchFromApi({
-          endpoint: "/filter-options",
-          params: { type: "league", query: value },
-        }),
-        fetchFromApi({
-          endpoint: "/filter-options",
-          params: { type: "team", query: value },
-        }),
-      ]);
+    // 🔹 Filter suggestions by typed value
+    const filtered = [...uniqueValues].filter((item) =>
+      item.toLowerCase().includes(value.toLowerCase())
+    );
 
-      const opts = [...(leagueRes?.options || []), ...(teamRes?.options || [])];
-
-      setMainSuggestions(opts.length > 0 ? opts : []);
-      setHighlightedIndex(-1);
-    } catch {
-      setMainSuggestions([]);
-    }
+    setMainSuggestions(filtered);
+    setHighlightedIndex(-1);
   };
 
   const handleMainKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      console.log(" [Main Search Input] Enter pressed, query:", searchQuery);
       executeSearch();
     }
     if (mainSuggestions.length === 0) return;
@@ -220,19 +219,19 @@ function FilterHomepage({ onFilterChange }) {
               <div className="absolute left-0 mt-1 bg-white dark:bg-gray-800 border rounded-md shadow-md max-h-40 overflow-y-auto w-full z-50">
                 {mainSuggestions.map((opt, idx) => (
                   <div
-                    key={opt.id}
+                    key={opt}
                     className={`p-2 text-sm cursor-pointer ${
                       idx === highlightedIndex
                         ? "bg-purple-100"
                         : "hover:bg-gray-200"
                     }`}
                     onClick={() => {
-                      setSearchQuery(opt.name);
+                      setSearchQuery(opt);
                       setMainSuggestions([]);
-                      onFilterChange({ q: opt.id }); // send ID directly
+                      onFilterChange({ q: opt }); // send ID directly
                     }}
                   >
-                    {renderHighlighted(opt.name, searchQuery)}
+                    {renderHighlighted(opt, searchQuery)}
                   </div>
                 ))}
               </div>

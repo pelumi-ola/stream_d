@@ -8,11 +8,14 @@ import About from "@/components/LandingPageCom/About";
 import Header from "@/components/LandingPageCom/Header";
 import Footer from "@/components/LandingPageCom/Footer";
 import FadeInSection from "@/components/ui/FadeInSection";
+import { useVideos } from "@/hooks/useVideos";
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState("Home");
   const [activeFilter, setActiveFilter] = useState(null);
   const [page, setPage] = useState(1);
+
+  const { videos } = useVideos(activeTab, page, 16, activeFilter);
 
   useEffect(() => {
     setPage(1);
@@ -29,6 +32,7 @@ export default function LandingPage() {
           <FilterHomepage
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
+            videos={videos}
           />
         </FadeInSection>
         <FadeInSection>

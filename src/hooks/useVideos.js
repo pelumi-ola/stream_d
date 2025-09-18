@@ -40,6 +40,7 @@ export function useVideos(activeTab, page, pageSize = 16, filter = null) {
             offset: (page - 1) * pageSize,
             ...filter, // q, league, team, category
           };
+          console.log("[useVideos] Fetching from /search with params:", params);
         } else {
           setIsSearchMode(false);
           const categoryName = getCategoryName();
