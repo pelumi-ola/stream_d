@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/context/store/useAuthStore";
 import { useUserInteractionsContext } from "@/context/UserInteractionsContext";
+import { LogoutModal } from "@/components/LogoutModal";
 
 const AuthContext = createContext();
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
   const intervalRef = useRef(null);
   const router = useRouter();
   const { loadAllInteractions } = useUserInteractionsContext();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Restore persisted user automatically handled by Zustand persist
   useEffect(() => {
@@ -106,9 +108,31 @@ export function AuthProvider({ children }) {
     router.push("/");
   };
 
+  // Manual logout request → shows modal
+  const requestLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutModal(false);
+    logout(false); // manual logout
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, setTimeLeft }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, requestLogout, loading, setTimeLeft }}
+    >
       {children}
+      {/* Global Logout Modal */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={cancelLogout}
+        onConfirm={confirmLogout}
+      />
     </AuthContext.Provider>
   );
 }

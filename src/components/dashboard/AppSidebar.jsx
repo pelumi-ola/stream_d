@@ -22,7 +22,7 @@ import { useVideoContext } from "@/context/VideoContext";
 import { useAuth } from "@/context/AuthContext";
 
 export function AppSidebar() {
-  const { logout } = useAuth();
+  const { requestLogout } = useAuth();
   const pathname = usePathname();
   const [isLeagueOpen, setIsLeagueOpen] = useState(true);
   const [page] = useState(1);
@@ -134,14 +134,17 @@ export function AppSidebar() {
           </SidebarGroupContent>
           <div className="flex flex-row justify-end gap-2 pt-4 mt-3">
             <Link href="/">
-              <Button variant="outline" className="w-20 justify-start gap-2 text-red-600 border-red-200 hover:bg-red-50 bg-transparent">
+              <Button
+                variant="outline"
+                className="w-20 justify-start gap-2 text-red-600 border-red-200 hover:bg-red-50 bg-transparent"
+              >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back
               </Button>
             </Link>
 
             <Button
-              onClick={() => logout(false)}
+              onClick={() => requestLogout()}
               variant="outline"
               className="w-25 justify-start gap-2 text-red-600 border-red-200 hover:bg-red-50 bg-transparent"
             >

@@ -12,7 +12,7 @@ function Header({ activeTab, setActiveTab }) {
   const { theme, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, requestLogout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -117,7 +117,7 @@ function Header({ activeTab, setActiveTab }) {
                       Profile
                     </Link>
                     <button
-                      onClick={() => logout(false)}
+                      onClick={() => requestLogout()}
                       className="flex gap-3 w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
                     >
                       <Power className="w-6 h-6 text-red-600" />
