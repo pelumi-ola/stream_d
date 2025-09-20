@@ -175,6 +175,75 @@ export function useLeagueVideos(allVideos, league, page = 1, pageSize = 6) {
   }, [allVideos, league, page, pageSize]);
 }
 
+const BestofStreamVideoSchema = z.object({
+  id: z.number(),
+  match_id: z.number(),
+  title: z.string(),
+  category: z.string(),
+  match_date: z.string(),
+  thumbnail: z.string(),
+  league: z.string(),
+  video_url: z.string(),
+  country: z.string(),
+  total: z.number(),
+});
+
+// 🔹 Schema for the whole response
+const BestofStreamResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.object({
+    type: z.string(),
+    best_matches: z.array(BestofStreamVideoSchema),
+  }),
+});
+
+// 🔹 Fetch Best of stream d explicitly
+export function useBestofStream(page, pageSize = 4) {
+  const [videos, setVideos] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadVideos() {
+      setLoading(true);
+      try {
+        const res = await fetchFromApi({
+          endpoint: `/interactions/top`,
+          schema: BestofStreamResponseSchema,
+        });
+
+        if (res?.data?.best_matches) {
+          const allVideos = res.data.best_matches;
+
+          // slice for current page
+          const start = (page - 1) * pageSize;
+          const end = start + pageSize;
+
+          setVideos(allVideos.slice(start, end));
+          setTotalPages(Math.ceil(allVideos.length / pageSize));
+        } else {
+          setVideos([]);
+          setTotalPages(1);
+        }
+      } catch (err) {
+        console.error("use Best of Stream-d error:", err);
+        setError("Failed to fetch Best of Stream-d");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadVideos();
+  }, [page, pageSize]);
+
+  return {
+    videos,
+    loading,
+    error,
+    totalPages,
+  };
+}
 
 /**
  * Generic hook to fetch videos by interaction type
@@ -229,6 +298,7 @@ function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
                 ...res.data,
                 match_id: i.match_id,
                 subscriber_id,
+                // created_at: i.created_at,
               };
             } catch {
               // fallback → return placeholder with subscriber_id + match_id
@@ -243,6 +313,7 @@ function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
                 video_url: "",
                 country: "",
                 match_date: "",
+                // created_at: i.created_at,
               };
             }
           })
@@ -259,7 +330,10 @@ function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
     loadVideos();
   }, [interactions, subscriber_id, type, page, pageSize]);
 
-  const totalPages = Math.max(1, Math.ceil((interactions?.length || 0) / pageSize));
+  const totalPages = Math.max(
+    1,
+    Math.ceil((interactions?.length || 0) / pageSize)
+  );
 
   // Delete interaction (requires subscriber_id + match_id)
   const deleteVideo = (matchId, subscriber_id_override) => {

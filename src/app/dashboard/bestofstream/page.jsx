@@ -4,10 +4,9 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Pagination } from "@/components/dashboard/pagination";
 import { VideoCard } from "@/lib/VideosCard";
-import { useBestofStream } from "@/hooks/useVideos";
+import { useBestofStream } from "@/hooks/useVideosData";
 import VideoRoute from "@/app/video/[id]/page";
 import { useVideoContext } from "@/context/VideoContext";
-import FilterTabs from "@/components/LandingPageCom/Filter-homepage";
 
 export default function BestofstreamPage() {
   const [page, setPage] = useState(1);
@@ -28,12 +27,10 @@ export default function BestofstreamPage() {
   return (
     <div className="w-full p-6 space-y-3">
       {/* Header */}
-      <div className="flex flex-col justify-between">
+      <div className="flex flex-row justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           🏆 Best Of Stream D
         </h1>
-
-        <FilterTabs />
       </div>
 
       {/* Video Grid */}

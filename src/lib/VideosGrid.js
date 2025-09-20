@@ -23,7 +23,7 @@ export function VideosGrid({ video, onClick, onDelete }) {
       {/* Thumbnail */}
       <div className="aspect-video relative">
         <Image
-          src={video.thumbnail || CardImg}
+          src={video.thumbnail}
           alt={video.title}
           fill
           priority
