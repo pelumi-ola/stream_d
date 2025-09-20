@@ -21,9 +21,20 @@ export function LogoutModal({ isOpen, onClose, onConfirm }) {
         </Button>
 
         {/* Logo */}
-        <div className="flex items-center justify-center mb-6">
-          <Image src={StreamdLogo} alt="Logo" width={70} height={70} />
+        <div className="flex justify-center">
+          <Image
+            src={StreamdLogo}
+            alt="logo"
+            width={80}
+            height={80}
+            priority
+            style={{ width: "80px", height: "auto" }} // ✅ keeps natural ratio
+            className="max-h-[80px]" // ✅ ensures it won't grow too big
+          />
         </div>
+        {/* <div className="flex items-center justify-center mb-6">
+          <Image src={StreamdLogo} alt="Logo" width={70} height={70} />
+        </div> */}
 
         {/* Message */}
         <div className="text-center mb-8">

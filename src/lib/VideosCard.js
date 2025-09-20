@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { CardImg } from "@/assets";
 
 export function VideoCard({ video, onClick }) {
   return (
@@ -23,6 +22,19 @@ export function VideoCard({ video, onClick }) {
       {/* Thumbnail */}
       <div className="aspect-video relative">
         <Image
+          src={video.thumbnail}
+          alt={video.title}
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover rounded-lg"
+        />
+        <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">
+          {video.category.toUpperCase()}
+        </div>
+      </div>
+      {/* <div className="aspect-video relative">
+        <Image
           src={video.thumbnail || CardImg}
           alt={video.title}
           fill
@@ -31,7 +43,7 @@ export function VideoCard({ video, onClick }) {
         <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">
           {video.category?.toUpperCase()}
         </div>
-      </div>
+      </div> */}
 
       {/* Content */}
       <div className="p-4">

@@ -13,20 +13,19 @@ function RelatedVideos({ videoId }) {
   const { setSelectedVideo } = useVideoContext();
   const pathname = usePathname();
 
-const handleVideoClick = (video) => {
-  if (user) {
-    setSelectedVideo(video);
-  }
-};
+  const handleVideoClick = (video) => {
+    if (user) {
+      setSelectedVideo(video);
+    }
+  };
 
-
-//   const handleVideoClick = (video) => {
-//     console.log("Selecting video:", video);
-//     if (user) {
-//       setSelectedVideo(video, pathname);
-//       router.push(`/video/${video.id}`);
-//     }
-//   };
+  //   const handleVideoClick = (video) => {
+  //     console.log("Selecting video:", video);
+  //     if (user) {
+  //       setSelectedVideo(video, pathname);
+  //       router.push(`/video/${video.id}`);
+  //     }
+  //   };
 
   return (
     <div className="bg-white dark:bg-gray-900 md:p-6 p-2 mt-4 rounded-md">
@@ -49,6 +48,19 @@ const handleVideoClick = (video) => {
               <div className="aspect-video relative">
                 <Image
                   src={video.thumbnail}
+                  alt={video.title}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover rounded-lg"
+                />
+                <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">
+                  {video.category.toUpperCase()}
+                </div>
+              </div>
+              {/* <div className="aspect-video relative">
+                <Image
+                  src={video.thumbnail}
                   fill
                   alt={video.title}
                   className="object-cover"
@@ -56,7 +68,7 @@ const handleVideoClick = (video) => {
                 <div className="absolute top-1 left-1 bg-red-600 text-white px-1 py-0.5 rounded text-xs font-semibold">
                   {video.category}
                 </div>
-              </div>
+              </div> */}
               <div className="p-2">
                 <h4 className="font-semibold text-xs text-gray-900 dark:text-white truncate">
                   {video.title}

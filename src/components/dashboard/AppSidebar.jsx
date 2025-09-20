@@ -34,7 +34,18 @@ export function AppSidebar() {
       <SidebarContent className="bg-white dark:bg-gray-800">
         <SidebarGroup>
           <SidebarGroupLabel className="flex gap-2 items-center p-3 mb-2">
-            <Image src={StreamdLogo} alt="Logo" width={41} height={31} />
+            <div className="relative w-[41px] h-[31px]">
+              <Image
+                src={StreamdLogo}
+                alt="Logo"
+                fill
+                priority
+                className="object-contain"
+                sizes="41px"
+              />
+            </div>
+
+            {/* <Image src={StreamdLogo} alt="Logo" width={41} height={31} /> */}
             <span className="text-lg text-[#100F0F] dark:text-white">
               Stream D
             </span>
@@ -104,13 +115,24 @@ export function AppSidebar() {
                           varient="outline"
                           className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                         >
-                          <Image
+                          <div className="relative w-10 h-6">
+                            <Image
+                              src={video.thumbnail}
+                              alt={video.title}
+                              fill
+                              priority
+                              className="object-cover rounded"
+                              sizes="40px"
+                            />
+                          </div>
+
+                          {/* <Image
                             src={video.thumbnail}
                             alt={video.title}
                             width={40}
                             height={24}
                             className="rounded-full object-cover"
-                          />
+                          /> */}
                           <span className="line-clamp-1 text-[12px]">
                             {video.title}
                           </span>

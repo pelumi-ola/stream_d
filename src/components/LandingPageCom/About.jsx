@@ -21,7 +21,18 @@ function About() {
             viewport={{ once: true }} // animate only once
             className="flex items-center justify-center"
           >
-            <Image src={LogoSide} width={500} height={500} alt="StreamD Logo" />
+            <div className="relative w-full max-w-[500px] aspect-square">
+              <Image
+                src={LogoSide}
+                alt="logo"
+                fill
+                priority
+                sizes="(max-width: 768px) 250px, (max-width: 1024px) 400px, 500px"
+                className="object-contain"
+              />
+            </div>
+
+            {/* <Image src={LogoSide} width={500} height={500} alt="StreamD Logo" /> */}
           </motion.div>
 
           {/* Right Side - How it Works */}
@@ -64,14 +75,24 @@ function About() {
               className="flex justify-end overflow-x-clip"
             >
               <div className="bg-primary rounded-2xl py-3 px-6 text-center w-60 h-55">
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center">
+                  <Image
+                    src={VideoIcon}
+                    alt="video icon"
+                    width={80}
+                    height={80}
+                    priority
+                    className="w-16 h-auto"
+                  />
+                </div>
+                {/* <div className="flex justify-center items-center">
                   <Image
                     src={VideoIcon}
                     alt="subvideo"
                     width={80}
                     height={80}
                   />
-                </div>
+                </div> */}
                 <div className="text-3xl font-bold text-white mb-2">₦ 100</div>
                 <div className="text-white mb-2">Daily</div>
                 <Link href="/login">

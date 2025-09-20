@@ -20,6 +20,7 @@ export function VideoGrid() {
             <Image
               height={500}
               width={500}
+              priority
               src={CardImg}
               alt={highlight.title}
               className=""

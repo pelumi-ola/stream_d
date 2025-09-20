@@ -91,8 +91,20 @@ export default function LoginPage() {
         {/* Left - Form */}
         <div className="w-full md:w-1/2 px-6 py-6 md:px-10">
           <div className="flex justify-center mb-6">
-            <Image src={StreamdLogo} width={120} height={120} alt="logo" />
+            <Image
+              src={StreamdLogo}
+              alt="logo"
+              width={120}
+              height={120}
+              priority
+              style={{ width: "120px", height: "auto" }} // ✅ keeps natural ratio
+              className="max-h-[120px]" // ✅ ensures it won't grow too big
+            />
           </div>
+
+          {/* <div className="flex justify-center mb-6">
+            <Image src={StreamdLogo} width={120} height={120} alt="logo" />
+          </div> */}
 
           <div className="flex flex-col justify-center mt-6">
             <label className="text-sm font-bold text-ring2 mb-2">
@@ -126,14 +138,25 @@ export default function LoginPage() {
         </div>
 
         {/* Right - Image */}
+
         <div className="hidden md:block md:w-1/2 relative">
+          <Image
+            src={LoginImage}
+            alt="Football"
+            fill
+            priority
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+        </div>
+        {/* <div className="hidden md:block md:w-1/2 relative">
           <Image
             src={LoginImage}
             alt="Football"
             fill
             className="object-cover"
           />
-        </div>
+        </div> */}
       </div>
 
       <SuccessModal

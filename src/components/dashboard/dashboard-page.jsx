@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const [selectedLeague, setSelectedLeague] = useState(null);
   const pathname = usePathname();
 
-  console.log("User in Dashboard:", user);
+  // console.log("User in Dashboard:", user);
 
   const [showWarning, setShowWarning] = useState(false);
 
@@ -326,9 +326,20 @@ export default function DashboardPage() {
                             src={video.thumbnail}
                             alt={video.title}
                             fill
+                            priority
+                            sizes="(min-width: 768px) 128px, 100vw"
                             className="object-cover"
                           />
                         </div>
+
+                        {/* <div className="relative md:h-20 md:w-32 rounded-lg overflow-hidden">
+                          <Image
+                            src={video.thumbnail}
+                            alt={video.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div> */}
                       </TableCell>
                       <TableCell className="font-medium text-chart-text whitespace-normal break-words">
                         {video.title}
@@ -467,9 +478,20 @@ export default function DashboardPage() {
                               src={video.thumbnail}
                               alt={video.title}
                               fill
+                              priority
+                              sizes="(min-width: 768px) 128px, 100vw"
                               className="object-cover"
                             />
                           </div>
+
+                          {/* <div className="relative md:h-20 md:w-32 rounded-lg overflow-hidden">
+                            <Image
+                              src={video.thumbnail}
+                              alt={video.title}
+                              fill
+                              className="object-cover"
+                            />
+                          </div> */}
                         </TableCell>
                         <TableCell className="font-medium text-chart-text whitespace-normal break-words">
                           {video.title}

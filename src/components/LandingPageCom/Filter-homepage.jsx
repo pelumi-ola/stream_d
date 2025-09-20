@@ -6,6 +6,7 @@ import { Search, Filter, ChevronDown, ChevronRight } from "@/assets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetchFromApi } from "@/lib/api";
+import { toast } from "sonner";
 
 function FilterHomepage({ onFilterChange, videos = [] }) {
   const [activeTab, setActiveTab] = useState("home");
@@ -29,26 +30,9 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // 🔹 Handle typing for league/team filters
-  const handleInputChange = async (type, value) => {
+  // 🔹 Just update input text (no API call here)
+  const handleInputChange = (type, value) => {
     setFilterInputs((prev) => ({ ...prev, [type]: value }));
-    if (!value.trim()) {
-      setSuggestions((prev) => ({ ...prev, [type]: [] }));
-      return;
-    }
-
-    try {
-      const res = await fetchFromApi({
-        endpoint: "/filter-options",
-        params: { type, query: value },
-      });
-
-      if (res?.options) {
-        setSuggestions((prev) => ({ ...prev, [type]: res.options }));
-      }
-    } catch (err) {
-      console.error("Failed to fetch suggestions:", err);
-    }
   };
 
   // 🔹 Select from suggestion
@@ -58,28 +42,29 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
     setSuggestions((prev) => ({ ...prev, [type]: [] }));
   };
 
-  // 🔹 Validate custom entry
+  // 🔹 Fetch options only when user presses Enter or clicks button
   const handleCustomOption = async (type, value) => {
     if (!value.trim()) return;
 
     try {
       const res = await fetchFromApi({
         endpoint: "/filter-options",
-        params: { type, query: value },
+        params: { type, q: value },
       });
 
-      if (res?.options?.length) {
-        const match = res.options.find(
-          (opt) => opt.name.toLowerCase() === value.toLowerCase()
+      if (res?.options?.length > 0) {
+        // Remove duplicates by name
+        const uniqueOptions = Array.from(
+          new Map(res.options.map((o) => [o.name, o])).values()
         );
-        if (match) {
-          handleSelectSuggestion(type, match);
-          return;
-        }
+        setSuggestions((prev) => ({ ...prev, [type]: uniqueOptions }));
+      } else {
+        setSuggestions((prev) => ({ ...prev, [type]: [] }));
+        toast.error(`No matching ${type} found.`);
       }
-      toast.error("Not found. Kindly select from suggestions.");
     } catch (err) {
-      console.error("Validation error:", err);
+      console.error("Filter fetch error:", err);
+      toast.error("Error fetching options. Try again.");
     }
   };
 
@@ -109,7 +94,7 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
       ...(selectedFilters.category && { category: selectedFilters.category }),
     };
 
-    console.log("[FilterHomepage] Search payload sending to /search:", payload);
+    // console.log("[FilterHomepage] Search payload sending to /search:", payload);
 
     await onFilterChange(Object.keys(payload).length > 0 ? payload : null);
     setShowFilter(false);
@@ -295,25 +280,21 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
                         </div>
 
                         {/* Suggestions dropdown */}
-                        {filterInputs.league.trim() &&
-                          suggestions.league?.length > 0 && (
-                            <div className="absolute bg-white dark:bg-gray-800 border rounded-md mt-1 shadow-md max-h-40 overflow-y-auto w-full z-50">
-                              {suggestions.league.map((opt) => (
-                                <div
-                                  key={opt.id}
-                                  className="p-2 cursor-pointer text-sm hover:bg-gray-200"
-                                  onClick={() =>
-                                    handleSelectSuggestion("league", opt)
-                                  }
-                                >
-                                  {renderHighlighted(
-                                    opt.name,
-                                    filterInputs.league
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                        {suggestions.league?.length > 0 && (
+                          <div className="absolute bg-white dark:bg-gray-800 border rounded-md mt-1 shadow-md max-h-40 overflow-y-auto w-full z-50">
+                            {suggestions.league.map((opt) => (
+                              <div
+                                key={opt.id}
+                                className="p-2 cursor-pointer text-sm hover:bg-gray-200"
+                                onClick={() =>
+                                  handleSelectSuggestion("league", opt)
+                                }
+                              >
+                                {opt.name}
+                              </div>
+                            ))}
+                          </div>
+                        )}
 
                         {/* Selected League like category */}
                         {selectedFilters.league && (
@@ -379,25 +360,21 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
                         </div>
 
                         {/* Suggestions dropdown */}
-                        {filterInputs.team.trim() &&
-                          suggestions.team?.length > 0 && (
-                            <div className="absolute bg-white dark:bg-gray-800 border rounded-md mt-1 shadow-md max-h-40 overflow-y-auto w-full z-50">
-                              {suggestions.team.map((opt) => (
-                                <div
-                                  key={opt.id}
-                                  className="p-2 cursor-pointer text-sm hover:bg-gray-200"
-                                  onClick={() =>
-                                    handleSelectSuggestion("team", opt)
-                                  }
-                                >
-                                  {renderHighlighted(
-                                    opt.name,
-                                    filterInputs.team
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                        {suggestions.team?.length > 0 && (
+                          <div className="absolute bg-white dark:bg-gray-800 border rounded-md mt-1 shadow-md max-h-40 overflow-y-auto w-full z-50">
+                            {suggestions.team.map((opt) => (
+                              <div
+                                key={opt.id}
+                                className="p-2 cursor-pointer text-sm hover:bg-gray-200"
+                                onClick={() =>
+                                  handleSelectSuggestion("team", opt)
+                                }
+                              >
+                                {opt.name}
+                              </div>
+                            ))}
+                          </div>
+                        )}
 
                         {/* Selected Team like category */}
                         {selectedFilters.team && (

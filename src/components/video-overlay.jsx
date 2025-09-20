@@ -27,14 +27,14 @@ export function VideoPage({
     loaded,
   } = useUserInteractionsContext();
 
-  console.log(
-    "VideoPage: id=",
-    videoId ?? selectedVideo?.id,
-    "match_id=",
-    matchId,
-    "subscriber_id=",
-    user?.subscriber_id
-  );
+  // console.log(
+  //   "VideoPage: id=",
+  //   videoId ?? selectedVideo?.id,
+  //   "match_id=",
+  //   matchId,
+  //   "subscriber_id=",
+  //   user?.subscriber_id
+  // );
 
   // 🔹 Load all user interactions when the video page mounts
   useEffect(() => {
@@ -87,7 +87,7 @@ export function VideoPage({
           <iframe
             src={videoUrl ?? selectedVideo?.url}
             style={{ border: "0" }}
-            allow="autoplay; fullscreen; encrypted-media"
+            allow="autoplay; encrypted-media"
             allowFullScreen
             className="w-full rounded-b-xl aspect-video md:h-[500px] md:aspect-auto"
           />

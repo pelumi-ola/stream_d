@@ -37,7 +37,7 @@ export default function StreamAndHighlights() {
   const { user } = useAuth();
   const router = useRouter();
   const { setSelectedVideo } = useVideoContext();
-   const pathname = usePathname();
+  const pathname = usePathname();
 
   // const PAGE_SIZE = 4;
   // 🔹 fetch extended highlights
@@ -98,13 +98,13 @@ export default function StreamAndHighlights() {
   };
 
   const handleVideoClick = (video) => {
-  console.log("Selecting video:", video);
-  if (user) {
-    setSelectedVideo(video, pathname); // context handles route vs inline update
-  } else {
-    setSubscriptionModal({ isOpen: true, videoType: video.category });
-  }
-};
+    console.log("Selecting video:", video);
+    if (user) {
+      setSelectedVideo(video, pathname); // context handles route vs inline update
+    } else {
+      setSubscriptionModal({ isOpen: true, videoType: video.category });
+    }
+  };
 
   // const handleVideoClick = (video) => {
   //   if (user) {
@@ -191,10 +191,21 @@ export default function StreamAndHighlights() {
                         src={video.thumbnail || sectionCard}
                         alt={video.title}
                         fill
-                        sizes="100vw"
+                        priority
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover rounded-md shadow-lg"
                       />
                     </div>
+
+                    {/* <div className="aspect-video relative">
+                      <Image
+                        src={video.thumbnail || sectionCard}
+                        alt={video.title}
+                        fill
+                        sizes="100vw"
+                        className="object-cover rounded-md shadow-lg"
+                      />
+                    </div> */}
                     <div className="mt-1 p-2 bg-black/58 dark:bg-gray-800 border-2 border-primary rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
                       <h3 className="font-semibold text-sm text-white">
                         {video.title}
@@ -286,10 +297,21 @@ export default function StreamAndHighlights() {
                         src={video.thumbnail || sectionCard}
                         alt={video.title}
                         fill
-                        sizes="100vw"
+                        priority
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover rounded-md shadow-lg"
                       />
                     </div>
+
+                    {/* <div className="aspect-video relative">
+                      <Image
+                        src={video.thumbnail || sectionCard}
+                        alt={video.title}
+                        fill
+                        sizes="100vw"
+                        className="object-cover rounded-md shadow-lg"
+                      />
+                    </div> */}
                     <div className=" mt-1 p-2 bg-black/58 dark:bg-gray-800 border-2 border-primary rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
                       <h3 className="font-semibold text-sm text-white">
                         {video.title}
@@ -383,10 +405,21 @@ export default function StreamAndHighlights() {
                         src={video.thumbnail || sectionCard}
                         alt={video.title}
                         fill
-                        sizes="100vw"
+                        priority
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover rounded-md shadow-lg"
                       />
                     </div>
+
+                    {/* <div className="aspect-video relative">
+                      <Image
+                        src={video.thumbnail || sectionCard}
+                        alt={video.title}
+                        fill
+                        sizes="100vw"
+                        className="object-cover rounded-md shadow-lg"
+                      />
+                    </div> */}
                     <div className=" mt-1 p-2 bg-black/58 dark:bg-gray-800 border-2 border-primary rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
                       <h3 className="font-semibold text-sm text-white">
                         {video.title}

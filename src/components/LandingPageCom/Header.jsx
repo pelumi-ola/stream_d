@@ -44,9 +44,20 @@ function Header({ activeTab, setActiveTab }) {
     <header className="fixed top-0 left-0 w-full z-50 bg-primary dark:bg-primary/65 backdrop-blur-sm border-b border-chart dark:border-input">
       <div className="flex items-center justify-between px-6 py-2 h-16">
         {/* Logo */}
-        <div className="flex items-center">
-          <Image src={LogoSvg} alt="Logo" width={80} height={80} />
+        <div className="relative w-20 h-20">
+          <Image
+            src={LogoSvg}
+            alt="Logo"
+            fill
+            sizes="80px"
+            priority
+            className="object-contain"
+          />
         </div>
+
+        {/* <div className="flex items-center">
+          <Image src={LogoSvg} alt="Logo" width={80} height={80} />
+        </div> */}
 
         {/* Desktop Navigation */}
         <div className="flex flex-row items-center justify-between space-x-3">

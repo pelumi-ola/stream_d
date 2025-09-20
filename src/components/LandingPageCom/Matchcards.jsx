@@ -76,12 +76,23 @@ function Matchcards({ activeTab, filter, page, setPage }) {
               className="flex items-center justify-between hover:bg-hover-button dark:hover:bg-hover-button dark:bg-hover cursor-pointer rounded-lg shadow-lg h-13 w-60 mb-10"
             >
               <h2 className="text-lg text-center font-bold text-chart flex items-center">
-                <Image
+                <div className="relative w-20 h-20">
+                  <Image
+                    src={FootballIcon}
+                    alt="Logo"
+                    fill
+                    sizes="60px"
+                    priority
+                    className="object-contain"
+                  />
+                </div>
+                {/* <Image
                   src={FootballIcon}
                   alt="football Icon"
                   width={60}
                   height={60}
-                />
+                  priority
+                /> */}
                 {pageTitle}
               </h2>
             </motion.div>
@@ -139,12 +150,27 @@ function Matchcards({ activeTab, filter, page, setPage }) {
                       src={video.thumbnail || CardImg}
                       alt={video.title}
                       fill
+                      priority
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover rounded-lg"
                     />
                     <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">
                       {video.category.toUpperCase()}
                     </div>
                   </div>
+
+                  {/* <div className="aspect-video relative">
+                    <Image
+                      src={video.thumbnail || CardImg}
+                      alt={video.title}
+                      fill
+                      sizes="100vw"
+                      className="object-cover rounded-lg"
+                    />
+                    <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">
+                      {video.category.toUpperCase()}
+                    </div>
+                  </div> */}
                   <div className="md:p-4 p-2">
                     <h4 className="font-semibold text-chart-1 dark:text-[#F60005] mb-1">
                       {video.league}

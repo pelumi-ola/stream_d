@@ -105,6 +105,7 @@ export default function Hero() {
               fill
               className="object-cover brightness-110"
               priority
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#6f30a0]/40 via-[#6f30a0]/20 to-transparent" />
           </motion.div>
@@ -186,6 +187,7 @@ export default function Hero() {
                   alt={slide.text}
                   width={128}
                   height={80}
+                  priority
                   className="object-cover w-full h-full"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-1 py-0.5 truncate">

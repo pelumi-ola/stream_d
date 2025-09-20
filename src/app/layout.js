@@ -39,19 +39,19 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <UserInteractionsProvider>
-              <AuthProvider>
-               <VideoProvider>
+          <UserInteractionsProvider>
+            <AuthProvider>
+              <VideoProvider>
                 <Toaster position="top-center" richColors />
                 {children}
               </VideoProvider>
-             </AuthProvider>
-           </UserInteractionsProvider>
+            </AuthProvider>
+          </UserInteractionsProvider>
         </ThemeProvider>
       </body>
     </html>

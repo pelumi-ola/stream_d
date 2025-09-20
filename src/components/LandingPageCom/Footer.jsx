@@ -19,7 +19,18 @@ function Footer() {
 
         {/* Center: Logo */}
         <div className="flex flex-col items-center gap-2 cursor-pointer transition-transform duration-300 hover:scale-110">
-          <Image src={LogoSvg} alt="Logo" width={50} height={50} />
+          <div className="relative w-20 h-20">
+            <Image
+              src={LogoSvg}
+              alt="Logo"
+              fill
+              sizes="80px"
+              priority
+              className="object-contain"
+            />
+          </div>
+
+          {/* <Image src={LogoSvg} alt="Logo" width={50} height={50} /> */}
           <p className="text-purple-300 dark:text-gray-400 font-semibold text-sm hover:text-white transition-colors duration-300">
             Stream D
           </p>

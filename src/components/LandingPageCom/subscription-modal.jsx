@@ -26,9 +26,20 @@ export function SubscriptionModal({ isOpen, onClose, videoType }) {
         </Button>
 
         {/* Stream D Logo */}
-        <div className="flex items-center justify-center">
-          <Image src={StreamdLogo} alt="Logo" width={80} height={80} />
+        <div className="flex justify-center">
+          <Image
+            src={StreamdLogo}
+            alt="logo"
+            width={80}
+            height={80}
+            priority
+            style={{ width: "80px", height: "auto" }} // ✅ keeps natural ratio
+            className="max-h-[80px]" // ✅ ensures it won't grow too big
+          />
         </div>
+        {/* <div className="flex items-center justify-center">
+          <Image src={StreamdLogo} alt="Logo" width={80} height={80} />
+        </div> */}
 
         <div className="text-center mb-8">
           <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -39,7 +50,7 @@ export function SubscriptionModal({ isOpen, onClose, videoType }) {
         <div className="space-y-4">
           <Link href="/login" className="relative block">
             <Button className="flex justify-start w-full h-12 bg-primary hover:bg-hover-button text-white font-bold rounded-full">
-             Get Started
+              Get Started
             </Button>
             <CircleArrowRight className="absolute text-center text-white top-3 right-2" />
           </Link>
