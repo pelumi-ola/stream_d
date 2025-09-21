@@ -9,13 +9,11 @@ import { fetchFromApi } from "@/lib/api";
 import { toast } from "sonner";
 
 function FilterHomepage({ onFilterChange, videos = [] }) {
-  const [activeTab, setActiveTab] = useState("home");
   const [showFilter, setShowFilter] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const [mainSuggestions, setMainSuggestions] = useState([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const mainSearchRef = useRef(null);
-  const [appliedFilters, setAppliedFilters] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState({
@@ -97,12 +95,7 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
 
     // console.log("[FilterHomepage] Search payload sending to /search:", payload);
 
-    // await onFilterChange(Object.keys(payload).length > 0 ? payload : null);
-    // setShowFilter(false);
-    const finalPayload = Object.keys(payload).length > 0 ? payload : null;
-
-    await onFilterChange(finalPayload);
-    setAppliedFilters(finalPayload); // ✅ mark applied filters after search
+    await onFilterChange(Object.keys(payload).length > 0 ? payload : null);
     setShowFilter(false);
   };
 
@@ -165,53 +158,14 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // inside FilterHomepage
-
-  const handleClear = () => {
-    setSearchQuery("");
-    setSelectedFilters({
-      league: null,
-      team: null,
-      category: null,
-    });
-    setFilterInputs({ league: "", team: "" });
-    setSuggestions({ league: [], team: [] });
-    setMainSuggestions([]);
-
-    setAppliedFilters(null);
-
-    onFilterChange(null);
-  };
-
   return (
     <motion.section
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="relative z-50 bg-white/10 mb-5 dark:bg-gray-900/50 drop-shadow-lg border-y border-white/20 dark:border-gray-700/30"
+      className="relative z-50 mb-5 drop-shadow-lg"
     >
       <div className="flex md:flex-row flex-col space-y-5 items-center justify-between lg:max-w-7xl lg:mx-auto px-6 lg:px-8 py-7">
-        {/* Date Tabs */}
-        <div className="flex items-center space-x-2 toggle-items toggle-filter">
-          {["Yesterday", "Today", "Tomorrow", "View All"].map((tab) => (
-            <Button
-              key={tab}
-              variant={activeTab === tab.toLowerCase() ? "default" : "ghost"}
-              className={`${
-                activeTab === tab.toLowerCase()
-                  ? "bg-purple-600 rounded-full text-white"
-                  : "bg-ring text-primary rounded-full"
-              }`}
-              onClick={() => {
-                setActiveTab(tab.toLowerCase());
-                onFilterChange(tab === "View All" ? null : tab.toLowerCase());
-              }}
-            >
-              {tab}
-            </Button>
-          ))}
-        </div>
-
         {/* Search & Filter */}
         <div className="flex items-center mb-3">
           {/* 🔹 Main Search Input */}
@@ -232,15 +186,12 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
                     className={`p-2 text-sm cursor-pointer ${
                       idx === highlightedIndex
                         ? "bg-purple-100"
-                        : "hover:bg-gray-200 dark:hover:text-black"
+                        : "hover:bg-gray-200"
                     }`}
                     onClick={() => {
                       setSearchQuery(opt);
                       setMainSuggestions([]);
-                      const payload = { q: opt };
-
-                      onFilterChange(payload);
-                      setAppliedFilters(payload); // send ID directly
+                      onFilterChange({ q: opt }); // send ID directly
                     }}
                   >
                     {renderHighlighted(opt, searchQuery)}
@@ -474,15 +425,6 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
               </motion.div>
             )}
           </div>
-          {appliedFilters && (
-            <Button
-              variant="outline"
-              className="px-4 py-2 rounded-lg ml-2"
-              onClick={handleClear}
-            >
-              Clear
-            </Button>
-          )}
         </div>
       </div>
     </motion.section>

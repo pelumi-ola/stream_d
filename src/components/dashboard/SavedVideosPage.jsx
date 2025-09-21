@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-// import FilterTabs from "@/components/dashboard/FilterTabs";
+import { useState } from "react";
+import FilterTab from "@/components/dashboard/FilterTab";
 import { VideosGrid } from "@/lib/VideosGrid";
 import { Pagination } from "@/components/dashboard/pagination";
 import {
@@ -13,6 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
 import { VideoPage } from "@/components/video-overlay";
 import { useVideoContext } from "@/context/VideoContext";
+import { Button } from "@/components/ui/button";
 
 const hooksMap = {
   favorite: useFavoriteVideos,
@@ -25,7 +26,6 @@ export default function SavedVideosPage({ type, title }) {
   const [page, setPage] = useState(1);
   const { selectedVideo, setSelectedVideo } = useVideoContext();
   const pathname = usePathname();
-  // const [filter, setFilter] = useState(null);
 
   const useHook = hooksMap[type];
   if (!useHook) throw new Error(`Invalid type: ${type}`);
@@ -35,26 +35,11 @@ export default function SavedVideosPage({ type, title }) {
     page
   );
 
-  // 👇 Apply filter logic
-  // const filteredVideos = useMemo(() => {
-  //   if (!filter) return videos;
+  const [filteredVideos, setFilteredVideos] = useState(null);
 
-  //   const today = new Date();
-  //   const yesterday = new Date();
-  //   yesterday.setDate(today.getDate() - 1);
-
-  //   return videos.filter((video) => {
-  //     // assume video has a saved_at or created_at field
-  //     const savedDate = new Date(video.created_at);
-
-  //     const isToday = savedDate.toDateString() === today.toDateString();
-  //     const isYesterday = savedDate.toDateString() === yesterday.toDateString();
-
-  //     if (filter === "today") return isToday;
-  //     if (filter === "yesterday") return isYesterday;
-  //     return true;
-  //   });
-  // }, [videos, filter]);
+  // true if user has applied a filter
+  const hasFiltered = filteredVideos !== null;
+  const videosToShow = hasFiltered ? filteredVideos : videos;
 
   if (selectedVideo) {
     return (
@@ -69,27 +54,82 @@ export default function SavedVideosPage({ type, title }) {
   }
 
   return (
-    <div className="relative z-50 flex flex-col justify-between w-full p-6 space-y-3">
+    <div className="relative z-10 flex flex-col justify-between w-full p-6 space-y-3">
       {/* Header */}
-      <div className="flex flex-col justify-between mb-5">
+      <div className="flex flex-col md:flex-row justify-between mb-5">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           {title}
         </h1>
-        {/* <FilterTabs onFilterChange={setFilter} /> */}
+        <div className="flex items-center gap-3">
+          <FilterTab
+            videos={videos}
+            onFilterChange={(payload) => {
+              if (!payload) {
+                setFilteredVideos(null);
+                return;
+              }
+
+              const filtered = videos.filter((v) => {
+                const matchesQuery =
+                  payload.q &&
+                  (v.title?.toLowerCase().includes(payload.q.toLowerCase()) ||
+                    v.league?.toLowerCase().includes(payload.q.toLowerCase()) ||
+                    v.country
+                      ?.toLowerCase()
+                      .includes(payload.q.toLowerCase()) ||
+                    v.category
+                      ?.toLowerCase()
+                      .includes(payload.q.toLowerCase()));
+
+                const matchesLeague =
+                  payload.league && v.leagueId === payload.league; // Assuming payload.league is id
+                const matchesTeam = payload.team && v.teamId === payload.team; // Assuming payload.team is id
+                const matchesCategory =
+                  payload.category && v.category === payload.category;
+
+                return (
+                  (!payload.q || matchesQuery) &&
+                  (!payload.league || matchesLeague) &&
+                  (!payload.team || matchesTeam) &&
+                  (!payload.category || matchesCategory)
+                );
+              });
+
+              setFilteredVideos(filtered);
+            }}
+          />
+
+          {/* Clear button */}
+          {hasFiltered && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFilteredVideos(null)}
+            >
+              Clear
+            </Button>
+          )}
+          {/* <FilterTab /> */}
+        </div>
       </div>
 
-      {/* States */}
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {/* Video Grid */}
+      {loading && (
+        <p className="text-center text-gray-500">Loading highlights...</p>
+      )}
+      {error && <p className="text-center text-red-500">{error}</p>}
 
-      {/* Video grid */}
-      {videos.length === 0 ? (
-        <p className="text-gray-500 dark:text-gray-400">
-          No saved videos found.
-        </p>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {videos.map((video) => (
+      {!loading && !error && videosToShow.length === 0 && hasFiltered && (
+        <p className="text-center text-gray-500">No results found.</p>
+      )}
+
+      {!loading && !error && videosToShow.length === 0 && !hasFiltered && (
+        <p className="text-center text-gray-500">No highlights available.</p>
+      )}
+
+      {!loading && !error && videosToShow.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          {videosToShow.map((video) => (
             <VideosGrid
               key={video.id}
               video={video}

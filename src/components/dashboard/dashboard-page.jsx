@@ -42,6 +42,7 @@ import {
 import { usePathname } from "next/navigation";
 import { SuccessModal } from "@/components/success-modal";
 import Link from "next/link";
+import { TableSkeleton } from "../ui/table-skeleton";
 
 const gridVariants = {
   hidden: { opacity: 0 },
@@ -373,7 +374,7 @@ export default function DashboardPage() {
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </Button>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm dark:text-black font-medium">
                     Page {leaguePage} of {leaguePages}
                   </span>
                   <Button
@@ -391,7 +392,7 @@ export default function DashboardPage() {
               )}
             </div>
           ) : (
-            <p className="text-gray-500">Select a league to see highlights</p>
+            <TableSkeleton />
           )}
         </section>
 
@@ -528,7 +529,7 @@ export default function DashboardPage() {
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </Button>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm dark:text-black font-medium">
                       Page {countryPage} of {countryPages}
                     </span>
                     <Button
@@ -546,9 +547,7 @@ export default function DashboardPage() {
                 )}
               </>
             ) : (
-              <p className="text-gray-500 text-center py-6">
-                No videos available for {selectedCountry}
-              </p>
+              <TableSkeleton />
             )}
           </div>
         </section>

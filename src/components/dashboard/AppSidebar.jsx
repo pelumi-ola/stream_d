@@ -19,10 +19,10 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import { useBestofStream } from "@/hooks/useVideos";
 import { useVideoContext } from "@/context/VideoContext";
-import { useAuth } from "@/context/AuthContext";
+// import { useAuth } from "@/context/AuthContext";
 
 export function AppSidebar() {
-  const { requestLogout } = useAuth();
+  // const { requestLogout } = useAuth();
   const pathname = usePathname();
   const [isLeagueOpen, setIsLeagueOpen] = useState(true);
   const [page] = useState(1);
@@ -34,7 +34,7 @@ export function AppSidebar() {
       <SidebarContent className="bg-white dark:bg-gray-800">
         <SidebarGroup>
           <SidebarGroupLabel className="flex gap-2 items-center p-3 mb-2">
-            <div className="relative w-[41px] h-[31px]">
+            <div className="relative w-[60px] h-[60px]">
               <Image
                 src={StreamdLogo}
                 alt="Logo"
@@ -107,13 +107,13 @@ export function AppSidebar() {
                   )}
 
                   {!loading && !error && videos.length > 0 && (
-                    <nav className="space-y-2">
+                    <nav className="space-y-2 overflow-hidden">
                       {videos.map((video) => (
                         <Button
                           onClick={() => setSelectedVideo(video, pathname)}
                           key={video.id}
                           varient="outline"
-                          className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                          className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-100 dark:text-gray-700 dark:hover:bg-gray-700"
                         >
                           <div className="relative w-10 h-6">
                             <Image
@@ -133,7 +133,10 @@ export function AppSidebar() {
                             height={24}
                             className="rounded-full object-cover"
                           /> */}
-                          <span className="line-clamp-1 text-[12px]">
+                          {/* <span className="line-clamp-1 text-[12px]">
+                            {video.title}
+                          </span> */}
+                          <span className="truncate text-[12px] min-w-0 max-w-[140px]">
                             {video.title}
                           </span>
                         </Button>
@@ -154,7 +157,7 @@ export function AppSidebar() {
               )}
             </div>
           </SidebarGroupContent>
-          <div className="flex flex-row justify-end gap-2 pt-4 mt-3">
+          {/* <div className="flex flex-row justify-end gap-2 pt-4 mt-3">
             <Link href="/">
               <Button
                 variant="outline"
@@ -173,7 +176,7 @@ export function AppSidebar() {
               <TbLogout className="w-4 h-4" />
               Logout
             </Button>
-          </div>
+          </div> */}
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

@@ -7,6 +7,8 @@ import { VideoCard } from "@/lib/VideosCard";
 import { useBestofStream } from "@/hooks/useVideosData";
 import VideoRoute from "@/app/video/[id]/page";
 import { useVideoContext } from "@/context/VideoContext";
+import FilterTab from "@/components/dashboard/FilterTab";
+import { Button } from "@/components/ui/button";
 
 export default function BestofstreamPage() {
   const [page, setPage] = useState(1);
@@ -19,18 +21,75 @@ export default function BestofstreamPage() {
     page,
     pageSize
   );
+  const [filteredVideos, setFilteredVideos] = useState(null);
+
+  // true if user has applied a filter
+  const hasFiltered = filteredVideos !== null;
+  const videosToShow = hasFiltered ? filteredVideos : videos;
 
   if (selectedVideo) {
     return <VideoRoute params={{ id: selectedVideo.id.toString() }} />;
   }
 
   return (
-    <div className="w-full p-6 space-y-3">
+    <div className="w-full p-6 space-y-3 relative z-10">
       {/* Header */}
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-col md:flex-row justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
           🏆 Best Of Stream D
         </h1>
+
+        <div className="flex items-center gap-3">
+          <FilterTab
+            videos={videos} // For suggestions
+            onFilterChange={(payload) => {
+              if (!payload) {
+                setFilteredVideos(null);
+                return;
+              }
+
+              const filtered = videos.filter((v) => {
+                const matchesQuery =
+                  payload.q &&
+                  (v.title?.toLowerCase().includes(payload.q.toLowerCase()) ||
+                    v.league?.toLowerCase().includes(payload.q.toLowerCase()) ||
+                    v.country
+                      ?.toLowerCase()
+                      .includes(payload.q.toLowerCase()) ||
+                    v.category
+                      ?.toLowerCase()
+                      .includes(payload.q.toLowerCase()));
+
+                const matchesLeague =
+                  payload.league && v.leagueId === payload.league; // Assuming payload.league is id
+                const matchesTeam = payload.team && v.teamId === payload.team; // Assuming payload.team is id
+                const matchesCategory =
+                  payload.category && v.category === payload.category;
+
+                return (
+                  (!payload.q || matchesQuery) &&
+                  (!payload.league || matchesLeague) &&
+                  (!payload.team || matchesTeam) &&
+                  (!payload.category || matchesCategory)
+                );
+              });
+
+              setFilteredVideos(filtered);
+            }}
+          />
+
+          {/* Clear button */}
+          {hasFiltered && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFilteredVideos(null)}
+            >
+              Clear
+            </Button>
+          )}
+          {/* <FilterTab /> */}
+        </div>
       </div>
 
       {/* Video Grid */}
@@ -39,7 +98,27 @@ export default function BestofstreamPage() {
       )}
       {error && <p className="text-center text-red-500">{error}</p>}
 
-      {!loading && !error && videos.length === 0 && (
+      {!loading && !error && videosToShow.length === 0 && hasFiltered && (
+        <p className="text-center text-gray-500">No results found.</p>
+      )}
+
+      {!loading && !error && videosToShow.length === 0 && !hasFiltered && (
+        <p className="text-center text-gray-500">No highlights available.</p>
+      )}
+
+      {!loading && !error && videosToShow.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          {videosToShow.map((video) => (
+            <VideoCard
+              key={video.id}
+              video={video}
+              onClick={() => setSelectedVideo(video, pathname)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* {!loading && !error && videos.length === 0 && (
         <p className="text-center text-gray-500">No highlights available.</p>
       )}
 
@@ -53,7 +132,7 @@ export default function BestofstreamPage() {
             />
           ))}
         </div>
-      )}
+      )} */}
 
       {/* Pagination */}
       {totalPages > 1 && (
