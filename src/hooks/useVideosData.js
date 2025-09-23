@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { fetchFromApi } from "@/lib/api";
 import { z } from "zod";
 import { useUserInteractions } from "./userInteractions";
+import { CardImg } from "@/assets";
 
 const VideoSchema = z.object({
   id: z.number(),
@@ -248,29 +249,138 @@ export function useBestofStream(page, pageSize = 4) {
 /**
  * Generic hook to fetch videos by interaction type
  */
-function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
-  const {
-    [type]: interactions,
-    fetchInteractions,
-    removeInteraction,
-    loading: interactionsLoading,
-  } = useUserInteractions();
 
+// function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
+//   const {
+//     [type]: interactions,
+//     fetchInteractions,
+//     removeInteraction,
+//     loading: interactionsLoading,
+//   } = useUserInteractions();
+
+//   const [videos, setVideos] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+
+//   // Step 1: load interactions (requires subscriber_id)
+//   useEffect(() => {
+//     if (subscriber_id) {
+//       fetchInteractions(type, subscriber_id);
+//     }
+//   }, [type, subscriber_id, fetchInteractions]);
+
+//   // Step 2: hydrate match_ids -> videos
+//   useEffect(() => {
+//     async function loadVideos() {
+//       if (!interactions?.length || !subscriber_id) {
+//         setVideos([]);
+//         return;
+//       }
+
+//       setLoading(true);
+//       setError(null);
+
+//       try {
+//         const start = (page - 1) * pageSize;
+//         const end = start + pageSize;
+//         const currentSlice = interactions.slice(start, end);
+
+//         const all = await Promise.all(
+//           currentSlice.map(async (i) => {
+//             if (!i?.match_id) {
+//               throw new Error("Invalid interaction: missing match_id");
+//             }
+
+//             try {
+//               const res = await fetchFromApi({
+//                 endpoint: `/videos/${i.match_id}`,
+//                 schema: z.object({ data: VideoSchema }),
+//               });
+//               return {
+//                 ...res.data,
+//                 match_id: i.match_id,
+//                 subscriber_id,
+//                 // created_at: i.created_at,
+//               };
+//             } catch {
+//               // fallback → return placeholder with subscriber_id + match_id
+//               return {
+//                 id: i.match_id,
+//                 match_id: i.match_id,
+//                 subscriber_id,
+//                 title: "Saved Match",
+//                 category: "",
+//                 thumbnail: "",
+//                 league: "",
+//                 video_url: "",
+//                 country: "",
+//                 match_date: "",
+//                 // created_at: i.created_at,
+//               };
+//             }
+//           })
+//         );
+//         setVideos(all);
+//       } catch (err) {
+//         console.error(`❌ Failed to fetch ${type} videos`, err);
+//         setError(`Failed to fetch ${type} videos`);
+//       } finally {
+//         setLoading(false);
+//       }
+//     }
+
+//     loadVideos();
+//   }, [interactions, subscriber_id, type, page, pageSize]);
+
+//   const totalPages = Math.max(
+//     1,
+//     Math.ceil((interactions?.length || 0) / pageSize)
+//   );
+
+//   // Delete interaction (requires subscriber_id + match_id)
+//   const deleteVideo = (matchId, subscriber_id_override) => {
+//     const sid = subscriber_id_override || subscriber_id;
+//     if (!sid || !matchId) {
+//       console.error("❌ Missing subscriber_id or match_id for delete");
+//       return;
+//     }
+//     removeInteraction(type, matchId, sid);
+//   };
+
+//   return {
+//     videos,
+//     loading: loading || interactionsLoading,
+//     error,
+//     totalPages,
+//     deleteVideo,
+//   };
+// }
+
+// ✅ Schema for the whole API response, reusing VideoSchema
+const InteractionVideosResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.array(VideoSchema),
+});
+
+function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
+  const { removeInteraction, loading: interactionsLoading } =
+    useUserInteractions();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Step 1: load interactions (requires subscriber_id)
-  useEffect(() => {
-    if (subscriber_id) {
-      fetchInteractions(type, subscriber_id);
-    }
-  }, [type, subscriber_id, fetchInteractions]);
+  const typeMap = {
+    love: "loved", // fix mismatch
+    favorite: "favorite",
+    watchLater: "saved",
+  };
 
-  // Step 2: hydrate match_ids -> videos
+  const apiType = typeMap[type] || type;
+
   useEffect(() => {
-    async function loadVideos() {
-      if (!interactions?.length || !subscriber_id) {
+    async function load() {
+      if (!subscriber_id) {
         setVideos([]);
         return;
       }
@@ -279,46 +389,23 @@ function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
       setError(null);
 
       try {
+        const res = await fetchFromApi({
+          endpoint: `/interactions/${apiType}-matches`,
+          params: { subscriber_id },
+          schema: InteractionVideosResponseSchema,
+        });
+
+        const all = res.data || [];
+
+        // optional fallback for thumbnail
+        const withFallback = all.map((item) => ({
+          ...item,
+          thumbnail: item.thumbnail || CardImg,
+        }));
+
         const start = (page - 1) * pageSize;
         const end = start + pageSize;
-        const currentSlice = interactions.slice(start, end);
-
-        const all = await Promise.all(
-          currentSlice.map(async (i) => {
-            if (!i?.match_id) {
-              throw new Error("Invalid interaction: missing match_id");
-            }
-
-            try {
-              const res = await fetchFromApi({
-                endpoint: `/videos/${i.match_id}?subscriber_id=${subscriber_id}`,
-                schema: z.object({ data: VideoSchema }),
-              });
-              return {
-                ...res.data,
-                match_id: i.match_id,
-                subscriber_id,
-                // created_at: i.created_at,
-              };
-            } catch {
-              // fallback → return placeholder with subscriber_id + match_id
-              return {
-                id: i.match_id,
-                match_id: i.match_id,
-                subscriber_id,
-                title: "Saved Match",
-                category: "",
-                thumbnail: "",
-                league: "",
-                video_url: "",
-                country: "",
-                match_date: "",
-                // created_at: i.created_at,
-              };
-            }
-          })
-        );
-        setVideos(all);
+        setVideos(withFallback.slice(start, end));
       } catch (err) {
         console.error(`❌ Failed to fetch ${type} videos`, err);
         setError(`Failed to fetch ${type} videos`);
@@ -327,15 +414,11 @@ function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
       }
     }
 
-    loadVideos();
-  }, [interactions, subscriber_id, type, page, pageSize]);
+    load();
+  }, [type, subscriber_id, page, pageSize]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil((interactions?.length || 0) / pageSize)
-  );
+  const totalPages = Math.max(1, Math.ceil(videos.length / pageSize));
 
-  // Delete interaction (requires subscriber_id + match_id)
   const deleteVideo = (matchId, subscriber_id_override) => {
     const sid = subscriber_id_override || subscriber_id;
     if (!sid || !matchId) {
@@ -343,6 +426,7 @@ function useInteractionVideos(type, subscriber_id, page = 1, pageSize = 12) {
       return;
     }
     removeInteraction(type, matchId, sid);
+    setVideos((prev) => prev.filter((v) => v.match_id !== matchId));
   };
 
   return {

@@ -70,11 +70,14 @@ function RelatedVideos({ videoId }) {
                 </div>
               </div> */}
               <div className="p-2">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  {video.league}
+                </p>
                 <h4 className="font-semibold text-xs text-gray-900 dark:text-white truncate">
                   {video.title}
                 </h4>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {video.league || "Unknown League"}
+                <p className="text-sm text-destructive text-end font-bold mt-3 dark:text-[#8F0606]">
+                  {video.country}
                 </p>
               </div>
             </div>

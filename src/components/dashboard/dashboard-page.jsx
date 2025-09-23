@@ -143,11 +143,11 @@ export default function DashboardPage() {
   if (selectedVideo) {
     return (
       <VideoPage
-        videoTitle={video.title}
-        videoCategory={video.category}
-        videoUrl={video.video_url}
-        videoId={video.id}
-        videoMatchId={video.match_id}
+        videoTitle={selectedVideo.title}
+        videoCategory={selectedVideo.category}
+        videoUrl={selectedVideo.video_url}
+        videoId={selectedVideo.id}
+        videoMatchId={selectedVideo.match_id}
       />
     );
   }
@@ -233,7 +233,7 @@ export default function DashboardPage() {
           >
             {recentHighlights.slice(1).map((video) => (
               <motion.div
-                key={video.id}
+                key={`recent-${video.id}`}
                 variants={cardVariants}
                 transition={{ duration: 0.6, ease: "easeOut" }}
                 whileHover={{
@@ -310,6 +310,9 @@ export default function DashboardPage() {
                       League
                     </TableHead>
                     <TableHead className="text-primary font-semibold">
+                      Country
+                    </TableHead>
+                    <TableHead className="text-primary font-semibold">
                       Action
                     </TableHead>
                   </TableRow>
@@ -317,7 +320,7 @@ export default function DashboardPage() {
                 <TableBody>
                   {leagueVideos.map((video) => (
                     <TableRow
-                      key={video.id}
+                      key={`league-${video.id}`}
                       className="hover:bg-hover transition-colors cursor-pointer"
                       onClick={() => setSelectedVideo(video, pathname)}
                     >
@@ -347,6 +350,9 @@ export default function DashboardPage() {
                       </TableCell>
                       <TableCell className="text-sm text-gray-600 whitespace-normal break-words">
                         {video.league}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600 whitespace-normal break-words">
+                        {video.country}
                       </TableCell>
                       <TableCell>
                         <Button
@@ -469,7 +475,7 @@ export default function DashboardPage() {
                   <TableBody>
                     {countryVideos.map((video) => (
                       <TableRow
-                        key={video.id}
+                        key={`country-${video.id}`}
                         className="hover:bg-hover transition-colors cursor-pointer"
                         onClick={() => setSelectedVideo(video, pathname)}
                       >

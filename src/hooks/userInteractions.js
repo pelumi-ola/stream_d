@@ -4,11 +4,16 @@ import axios from "axios";
 import { z } from "zod";
 import { toast } from "sonner";
 
-const InteractionSchema = z.object({
+const VideoSchema = z.object({
   id: z.number(),
   match_id: z.number(),
-  subscriber_id: z.number(),
-  created_at: z.string().optional(),
+  title: z.string(),
+  category: z.string(),
+  match_date: z.string(),
+  thumbnail: z.string(),
+  league: z.string(),
+  video_url: z.string(),
+  country: z.string(),
 });
 
 const api = axios.create({
@@ -35,7 +40,7 @@ export const useUserInteractions = create((set, get) => ({
       const { data } = await api.get(endpoints[type], {
         params: { subscriber_id },
       });
-      const parsed = z.array(InteractionSchema).parse(data.data);
+      const parsed = z.array(VideoSchema).parse(data.data);
       set({ [type]: parsed });
     } catch (error) {
       console.error(
