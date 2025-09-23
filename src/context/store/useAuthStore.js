@@ -8,9 +8,14 @@ export const useAuthStore = create(
     (set) => ({
       user: null,
       timeLeft: null,
+      lastMsisdn: null,
 
       setUser: (userData) => {
-        set({ user: userData });
+        set({
+          user: userData,
+          lastMsisdn: userData.msisdn,
+        });
+        // set({ user: userData });
       },
 
       setTimeLeft: (seconds) => set({ timeLeft: seconds }),

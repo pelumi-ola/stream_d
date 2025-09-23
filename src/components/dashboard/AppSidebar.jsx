@@ -33,22 +33,24 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent className="bg-white dark:bg-gray-800">
         <SidebarGroup>
-          <SidebarGroupLabel className="flex gap-2 items-center p-3 mb-2">
-            <div className="relative w-[60px] h-[60px]">
-              <Image
-                src={StreamdLogo}
-                alt="Logo"
-                fill
-                priority
-                className="object-contain"
-                sizes="41px"
-              />
-            </div>
+          <SidebarGroupLabel>
+            <Link href="/" className="flex gap-2 items-center p-3 mb-2">
+              <div className="relative w-[60px] h-[60px]">
+                <Image
+                  src={StreamdLogo}
+                  alt="Logo"
+                  fill
+                  priority
+                  className="object-contain"
+                  sizes="41px"
+                />
+              </div>
 
-            {/* <Image src={StreamdLogo} alt="Logo" width={41} height={31} /> */}
-            <span className="text-lg text-[#100F0F] dark:text-white">
-              Stream D
-            </span>
+              {/* <Image src={StreamdLogo} alt="Logo" width={41} height={31} /> */}
+              <span className="text-lg text-[#100F0F] dark:text-white">
+                Stream D
+              </span>
+            </Link>
           </SidebarGroupLabel>
           <SidebarGroupContent className="border-t border-gray-200 dark:border-gray-700">
             <SidebarMenu className="mt-3">

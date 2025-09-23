@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IoIosCall, CircleArrowRight } from "@/assets";
@@ -13,6 +13,7 @@ import { z } from "zod";
 import { SuccessModal } from "@/components/success-modal";
 import BackButton from "@/components/BackButton";
 import { LoginImage, StreamdLogo } from "@/assets";
+import { useAuthStore } from "@/context/store/useAuthStore";
 
 const phoneSchema = z.string().min(10, "Phone Number is required");
 
@@ -21,6 +22,16 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
   const { modal, setModal, closeModal, loading, setLoading } = useLoginStore();
+  const { user, lastMsisdn } = useAuthStore();
+
+  useEffect(() => {
+    if (user?.msisdn && !user?.is_first_time) {
+      setPhone(user.msisdn);
+    } else if (lastMsisdn) {
+      // ✅ if user is logged out, fallback to last used msisdn
+      setPhone(lastMsisdn);
+    }
+  }, [user, lastMsisdn]);
 
   const handleLogin = async () => {
     const result = phoneSchema.safeParse(phone);
