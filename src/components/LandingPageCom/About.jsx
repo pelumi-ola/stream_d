@@ -49,21 +49,22 @@ function About() {
 
             <div className="space-y-4 text-chart dark:text-hover leading-relaxed">
               <p>
-                Stream D is your all-in-one platform for live football matches,
-                past games, exciting highlights and up-to-the-minute scores. To
-                get started, simply dial *13035# or Via SMS, send SD to 13035 or
-                visit the Stream D web app to sign up directly. Enter your phone
-                number, receive an OTP for verification, and your account will
-                be ready in seconds.
+                <strong> Stream-D</strong> is your all-in-one digital platform
+                for official football highlights, live scores, and live matches
+                accessible anytime, on any device, straight from your browser.
               </p>
 
               <p>
-                Once logged in, you can stream all your favorite matches live,
-                watch past games, and catch every highlight as soon as it drops.
-                Stay informed with real-time scores and updates from leagues
-                around the world at far as little as ₦100. With Stream D,
-                football is always just a click away.
+                Catch every moment from the Premier League, Champions League, La
+                Liga, Serie A, Europa League, and more with our official video
+                highlights.
               </p>
+
+              {/*Footer text */}
+              <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+                <p>To subscribe, dial *13035# or send SD to 13035.</p>
+                <p>T&amp;Cs apply.</p>
+              </div>
             </div>
 
             {/* Subscribe Card with Scale Animation */}
