@@ -134,7 +134,7 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
   const handleMainKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      console.log(" [Main Search Input] Enter pressed, query:", searchQuery);
+      // console.log(" [Main Search Input] Enter pressed, query:", searchQuery);
       executeSearch();
     }
     if (mainSuggestions.length === 0) return;

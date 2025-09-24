@@ -47,7 +47,7 @@ function Matchcards({ activeTab, filter, page, setPage }) {
   }, [page, router, searchParams]);
 
   const handleVideoClick = (video) => {
-    console.log("Selecting video:", video);
+    // console.log("Selecting video:", video);
     if (user) {
       setSelectedVideo(video, pathname);
     } else {

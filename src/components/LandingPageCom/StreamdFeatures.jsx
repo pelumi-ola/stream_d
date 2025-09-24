@@ -98,7 +98,7 @@ export default function StreamAndHighlights() {
   };
 
   const handleVideoClick = (video) => {
-    console.log("Selecting video:", video);
+    // console.log("Selecting video:", video);
     if (user) {
       setSelectedVideo(video, pathname); // context handles route vs inline update
     } else {
