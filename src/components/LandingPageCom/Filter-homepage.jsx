@@ -261,7 +261,7 @@ function FilterHomepage({ onFilterChange, videos = [] }) {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="absolute right-0 mt-2 bg-white dark:bg-gray-800 border rounded-lg shadow-md p-4 md:w-[300px] z-50"
+                className="absolute right-0 mt-2 bg-white dark:bg-gray-800 border rounded-lg shadow-md p-4 w-[300px] z-50"
               >
                 <h3 className="font-bold text-lg border-b pb-2 mb-2">
                   Filter By:

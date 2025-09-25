@@ -41,7 +41,7 @@ function Header({ activeTab, setActiveTab }) {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-primary dark:bg-primary/65 backdrop-blur-sm border-b border-chart dark:border-input">
+    <header className="fixed top-0 left-0 w-full z-[100] bg-primary dark:bg-primary/65 backdrop-blur-sm border-b border-chart dark:border-input">
       <div className="flex items-center justify-between px-6 py-2 h-16">
         {/* Logo */}
         <div className="relative w-20 h-20">
@@ -167,7 +167,7 @@ function Header({ activeTab, setActiveTab }) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed top-16 right-0 h-screen w-64 md:hidden bg-primary border-l border-chart dark:border-input px-6 py-5 space-y-6 shadow-lg z-50"
+            className="fixed top-16 right-0 h-screen w-64 md:hidden bg-primary border-l border-chart dark:border-input px-6 py-5 space-y-6 shadow-lg"
           >
             <nav className="flex flex-col space-y-6">
               {navItems.map((item) => (
