@@ -43,6 +43,7 @@ import { usePathname } from "next/navigation";
 import { SuccessModal } from "@/components/success-modal";
 import Link from "next/link";
 import { TableSkeleton } from "../ui/table-skeleton";
+import { formatRemaining } from "@/lib/formatDate";
 
 const gridVariants = {
   hidden: { opacity: 0 },
@@ -78,13 +79,6 @@ export default function DashboardPage() {
     }
   }, [timeLeft]);
 
-  const formatTime = (seconds) => {
-    if (seconds == null) return "--";
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h}h ${m}m ${s}s`;
-  };
   // 🔹 Fetch all videos (for leagues + countries)
   const { videos: allVideos, loading: loadingAll } = useAllVideos();
   const [recentPage, setRecentPage] = useState(1);
@@ -608,7 +602,7 @@ export default function DashboardPage() {
                     ⏳ Remaining:
                   </span>
                   <span className="text-gray-900 dark:text-white">
-                    {formatTime(timeLeft)}
+                    {formatRemaining(timeLeft)}
                   </span>
                 </p>
               </div>

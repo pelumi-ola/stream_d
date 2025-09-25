@@ -1,4 +1,3 @@
-// store/useAuthStore.js
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -15,7 +14,6 @@ export const useAuthStore = create(
           user: userData,
           lastMsisdn: userData.msisdn,
         });
-        // set({ user: userData });
       },
 
       setTimeLeft: (seconds) => set({ timeLeft: seconds }),
@@ -25,6 +23,11 @@ export const useAuthStore = create(
     {
       name: "auth-storage",
       getStorage: () => localStorage,
+      // 👇 Only persist user + lastMsisdn, not timeLeft
+      partialize: (state) => ({
+        user: state.user,
+        lastMsisdn: state.lastMsisdn,
+      }),
     }
   )
 );

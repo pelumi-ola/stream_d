@@ -10,7 +10,7 @@ import { LogoutModal } from "@/components/LogoutModal";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const { user, setUser, clearUser, setTimeLeft } = useAuthStore();
+  const { user, setUser, clearUser, setTimeLeft, timeLeft } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const logoutTimer = useRef(null);
   const intervalRef = useRef(null);
@@ -22,14 +22,28 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (user && user.status === "active" && user.session_expires_at) {
       const expiry = new Date(user.session_expires_at).getTime();
-      if (expiry > Date.now()) {
-        const remaining_seconds = Math.floor((expiry - Date.now()) / 1000);
-        setTimeLeft(remaining_seconds);
+      const now = Date.now();
+
+      if (isNaN(expiry)) {
+        console.warn("Invalid session_expires_at:", user.session_expires_at);
+        clearUser();
+        setLoading(false);
+        return;
+      }
+
+      if (expiry > now) {
+        const remaining =
+          user.remaining_seconds !== undefined &&
+          user.remaining_seconds !== null
+            ? Number(user.remaining_seconds)
+            : Math.floor((expiry - now) / 1000);
+
+        setTimeLeft(remaining);
         scheduleAutoLogout(user.session_expires_at);
-        startCountdown(remaining_seconds);
+        startCountdown(remaining, user.session_expires_at);
         loadAllInteractions(user.subscriber_id);
       } else {
-        clearUser();
+        clearUser(); // already expired
       }
     }
     setLoading(false);
@@ -47,20 +61,30 @@ export function AuthProvider({ children }) {
   };
 
   // Countdown display
-  const startCountdown = (seconds) => {
+  const startCountdown = (seconds, expiresAt) => {
+    if (!seconds || isNaN(seconds)) {
+      console.warn("Invalid countdown start value:", seconds);
+      logout(true);
+      return;
+    }
+
     if (intervalRef.current) clearInterval(intervalRef.current);
     setTimeLeft(seconds);
 
     intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev && prev > 1) return prev - 1;
+      const now = Date.now();
+      const remaining = Math.floor(
+        (new Date(expiresAt).getTime() - now) / 1000
+      );
+
+      if (remaining > 0) {
+        setTimeLeft(remaining);
+      } else {
         clearInterval(intervalRef.current);
         logout(true);
-        return 0;
-      });
+      }
     }, 1000);
   };
-
   // Login function
   const login = (userData) => {
     if (userData.status === "active") {
@@ -75,35 +99,55 @@ export function AuthProvider({ children }) {
         is_first_time: userData.is_first_time,
         remaining_seconds: userData.remaining_seconds,
       };
+      const expiry = new Date(activeUser.session_expires_at).getTime();
+      const now = Date.now();
 
-      const remaining_seconds =
-        Math.floor(
-          new Date(activeUser.session_expires_at).getTime() - Date.now()
-        ) / 1000;
+      if (isNaN(expiry)) {
+        console.warn(
+          "Invalid session_expires_at:",
+          activeUser.session_expires_at
+        );
+        clearUser();
+        return;
+      }
 
-      setUser(activeUser); // persisted automatically
-      setTimeLeft(remaining_seconds);
+      const remaining =
+        activeUser.remaining_seconds !== undefined &&
+        activeUser.remaining_seconds !== null
+          ? Number(activeUser.remaining_seconds)
+          : Math.floor((expiry - now) / 1000);
+
+      setUser(activeUser);
+      setTimeLeft(remaining);
       scheduleAutoLogout(activeUser.session_expires_at);
-      startCountdown(remaining_seconds);
+      startCountdown(remaining, activeUser.session_expires_at);
       loadAllInteractions(activeUser.subscriber_id);
     }
   };
 
   // Logout function
   const logout = (isAuto = false) => {
-    clearUser(); // clears persisted user
-
     if (logoutTimer.current) {
       clearTimeout(logoutTimer.current);
       logoutTimer.current = null;
     }
+
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
-    if (isAuto) toast.error("Your session has expired. Please log in again.");
-    else toast.success("You have been logged out.");
+    clearUser();
+    setTimeLeft(null);
+
+    // Set logout reason FIRST
+    if (isAuto) {
+      toast.error("Your session has expired. Please subscribe again.");
+      localStorage.setItem("logoutReason", "auto");
+    } else {
+      toast.success("You have been logged out.");
+      localStorage.setItem("logoutReason", "manual");
+    }
 
     router.push("/");
   };
@@ -124,7 +168,15 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, requestLogout, loading, setTimeLeft }}
+      value={{
+        user,
+        login,
+        logout,
+        requestLogout,
+        loading,
+        setTimeLeft,
+        timeLeft,
+      }}
     >
       {children}
       {/* Global Logout Modal */}

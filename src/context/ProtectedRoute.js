@@ -10,26 +10,26 @@ export function ProtectedRoute({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    // only run once AuthContext finished loading
     if (!loading) {
       if (!user || user.status !== "active") {
         const reason = localStorage.getItem("logoutReason");
+
         if (reason !== "manual") {
           toast.error("You must be logged in with an active subscription.");
         }
-        localStorage.removeItem("logoutReason");
 
+        localStorage.removeItem("logoutReason");
         router.replace("/");
       }
     }
   }, [user, loading, router]);
 
   if (loading) {
-    return <p>Loading...</p>; // or replace with a spinner/loader
+    return <p>Loading...</p>;
   }
 
   if (!user || user.status !== "active") {
-    return null; // prevents flicker before redirect
+    return null; // show nothing while redirecting
   }
 
   return <>{children}</>;
