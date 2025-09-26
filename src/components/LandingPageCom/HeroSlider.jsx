@@ -88,7 +88,7 @@ export default function Hero() {
       style={{ backgroundColor: "#6f30a0" }}
     >
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 pointer-events-none">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={slides[current].id}
@@ -148,13 +148,13 @@ export default function Hero() {
       {/* Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute lg:left-2 bottom-1/2 mb-10 -translate-y-1/2 bg-black/60 lg:bg-black/10 hover:bg-white/40 p-3 rounded-full text-white"
+        className="absolute z-20 cursor-pointer lg:left-2 bottom-1/2 mb-10 -translate-y-1/2 bg-black/60 lg:bg-black/10 hover:bg-white/40 p-3 rounded-full text-white"
       >
         <ChevronLeft size={28} />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute lg:right-5 right-3 bottom-1/2 mb-10 -translate-y-1/2 bg-black/60 lg:bg-black/10 hover:bg-white/40 p-3 rounded-full text-white"
+        className="absolute z-20 cursor-pointer lg:right-5 right-3 bottom-1/2 mb-10 -translate-y-1/2 bg-black/60 lg:bg-black/10 hover:bg-white/40 p-3 rounded-full text-white"
       >
         <ChevronRight size={28} />
       </button>
