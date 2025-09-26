@@ -61,7 +61,7 @@ function Footer() {
       </div>
       <div className="mt-8 border-t border-purple-700 dark:border-gray-800"></div>
 
-      <p className="text-xs text-purple-200 dark:text-gray-500 mt-4 text-center">
+      <p className="text-xs text-purple-200 dark:text-gray-500 mt-4 md:ml-20 text-center">
         Powered by Digiline Solution Limited
         {/* Powered by{" "}
         <a
