@@ -8,13 +8,13 @@ export function TableSkeleton({ rows = 5 }) {
         {Array.from({ length: rows }).map((_, i) => (
           <TableRow key={i}>
             <TableCell className="hidden md:table-cell">
-              <Skeleton className="h-20 w-32 rounded-lg" />
+              <Skeleton className="md:h-20 md:w-32 rounded-lg" />
             </TableCell>
             <TableCell>
-              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-4 md:w-48" />
             </TableCell>
             <TableCell>
-              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 md:w-32" />
             </TableCell>
             <TableCell>
               <Skeleton className="h-8 w-20 rounded-md" />
