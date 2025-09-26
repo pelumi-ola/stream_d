@@ -21,7 +21,8 @@ export { MdDeleteForever } from "react-icons/md";
 
 export {
   FaLinkedinIn,
-  FaFacebookF,
+  FaTwitter,
+  // FaFacebookF,
   FaTwitter,
   FaArrowRight,
   FaPlay,
@@ -54,7 +55,7 @@ export {
   Globe,
   LogOut,
   Flame,
-  Star
+  Star,
 } from "lucide-react";
 
 export {
