@@ -21,7 +21,7 @@ export { MdDeleteForever } from "react-icons/md";
 
 export {
   FaLinkedinIn,
-  FaTwitter,
+  FaInstagram,
   // FaFacebookF,
   FaTwitter,
   FaArrowRight,
