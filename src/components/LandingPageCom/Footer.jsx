@@ -39,9 +39,6 @@ function Footer() {
           </div>
 
           {/* <Image src={LogoSvg} alt="Logo" width={50} height={50} /> */}
-          <p className="text-purple-300 dark:text-gray-400 font-semibold text-sm hover:text-white transition-colors duration-300">
-            Stream D
-          </p>
         </div>
 
         {/* Right: Social Links */}
