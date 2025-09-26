@@ -79,7 +79,6 @@ export function VideoPage({
           {" "}
           {videoCategory ?? selectedVideo?.category}
         </span>
-        <span className="text-sm text-gray-300">{matchId}</span>
       </div>
 
       <div className="md:p-6 p-3">
